@@ -57,45 +57,6 @@
            border-radius: 10px 10px 0 0; /* Закругляем верхние углы */
 }
 
-.leaderboard {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.leaderboard th, .leaderboard td {
-    padding: 10px;
-    border: 1px solid white;
-    text-align: center;
-}
-
-.leaderboard th {
-    background: rgba(0, 0, 0, 0.7);
-}
-.input-field {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 5px;
-    border: none;
-    font-size: 16px;
-    text-align: center;
-}
-
-.add-button {
-    padding: 10px 20px;
-    background-color: gold;
-    color: black;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    border-radius: 5px;
-}
-
-.add-button:hover {
-    background-color: orange;
-}
         .menu-bar {
             position: fixed;
             bottom: -100px;
@@ -107,14 +68,30 @@
             justify-content: center;
             transition: bottom 0.5s ease-in-out;
         }
+.upgrade-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.upgrade-button {
+    flex-grow: 1; /* Кнопки улучшений занимают все доступное место */
+}
+
+.buy-max {
+    flex-grow: 0;
+    width: 333px; /* Фиксированная ширина для кнопок "Купить максимум" */
+}
+
         .menu-button, .upgrade-button {
-            padding: 10px 15px;
+            padding: 10px 100px;
             border: none;
             cursor: pointer;
             font-size: 18px;
             border-radius: 15px;
         }
-        .menu-button { background-color: grey; color: white; }
+        .menu-button { background-color: black; color: white; }
         .menu-button:hover { background-color: gray; }
         .upgrade-button { background-color: gold; color: black; display: block; margin: 10px auto; }
         .toggle-panel-button {
@@ -142,84 +119,26 @@
         <p>Пассивный доход: <span id="passive-income">0</span> очков в секунду</p>
     </div>
     <div class="container" id="mainMenu">
-        <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">Побрить хомяка</h1>
+        <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">Hamster Kombat Tap</h1>
         <img src="https://46tv.ru/uploads/posts/2024-07/1721374745_hamster-kombat.png" alt="Hamster" class="hamster" id="hamster">
     </div>
-    <div class="container hidden" id="upgradeMenu">
-        <h2 style="color: white;">Улучшения</h2>
+    <div class="container hidden upgrade-menu" id="upgradeMenu">
+    <h2 style="color: white;">Улучшения</h2>
+    <div class="upgrade-row">
         <button class="upgrade-button" id="upgrade-click">Улучшить клик (+1) - 10 очков</button>
-        <button class="upgrade-button" id="upgrade-passive">Купить пассивный доход (+1/с) - 50 очков</button>
+        <button class="upgrade-button buy-max" id="buy-maxclick">Купить максимум</button>
     </div>
-    <div class="container hidden" id="leaderMenu">
-    <h2 style="color: white;">Список лидеров</h2>
-    
-    <!-- Форма для добавления нового игрока -->
-    <input type="text" id="playerName" placeholder="Введите имя" class="input-field">
-    <input type="number" id="playerScore" placeholder="Очки" class="input-field">
-    <button class="add-button" onclick="addPlayerFromForm()">Добавить игрока</button>
-
-    <!-- Таблица лидеров -->
-    <table class="leaderboard">
-        <thead>
-            <tr>
-                <th>Место</th>
-                <th>Игрок</th>
-                <th>Очки</th>
-            </tr>
-        </thead>
-        <tbody id="leaderboard-body">
-            <!-- Данные будут добавляться динамически -->
-        </tbody>
-    </table>
+    <div class="upgrade-row">
+        <button class="upgrade-button" id="upgrade-passive">Купить пассивный доход (+1/с) - 50 очков</button>
+        <button class="upgrade-button buy-max" id="buy-maxpass">Купить максимум</button>
+    </div>
 </div>
     <div class="menu-bar" id="menuBar">
         <button class="menu-button" onclick="showMenu('mainMenu')">Главная</button>
         <button class="menu-button" onclick="showMenu('upgradeMenu')">Улучшения</button>
-        <button class="menu-button" onclick="showMenu('leaderMenu')">Список лидеров</button>
     </div>
     <button class="toggle-panel-button" id="toggleButton" onclick="togglePanel()">Показать меню</button>
-<script>
-    let players = JSON.parse(localStorage.getItem("players")) || [
-    ];
-
-    function updateLeaderboard() {
-        let tbody = document.getElementById("leaderboard-body");
-        tbody.innerHTML = ""; // Очищаем список
-
-        players.sort((a, b) => b.score - a.score); // Сортируем по очкам
-
-        players.forEach((player, index) => {
-            let row = `<tr>
-                <td>${index + 1}</td>
-                <td>${player.name}</td>
-                <td>${player.score}</td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-
-        localStorage.setItem("players", JSON.stringify(players)); // Сохраняем в localStorage
-    }
-
-    function addPlayer(name, score) {
-        if (!name || score === "" || isNaN(score) || score < 0) {
-            alert("Введите корректные данные!");
-            return;
-        }
-        players.push({ name, score: parseInt(score) });
-        updateLeaderboard();
-    }
-
-    function addPlayerFromForm() {
-        let name = document.getElementById("playerName").value.trim();
-        let score = document.getElementById("playerScore").value.trim();
-        addPlayer(name, score);
-        document.getElementById("playerName").value = "";
-        document.getElementById("playerScore").value = "";
-    }
-
-    updateLeaderboard();
-</script>
-<script>
+        <script>
         let score = parseInt(localStorage.getItem("score")) || 0;
         let clickValue = parseInt(localStorage.getItem("clickValue")) || 1;
         let passiveIncome = parseInt(localStorage.getItem("passiveIncome")) || 0;
@@ -250,6 +169,22 @@
             }
         });
 
+        document.getElementById("buy-maxpass").addEventListener("click", () => {
+            while (score >= 50) {
+                score -= 50;
+                passiveIncome++;
+            }
+            updateDisplay();
+        });
+
+        document.getElementById("buy-maxclick").addEventListener("click", () => {
+            while (score >= 10) {
+                score -= 10;
+                clickValue++;
+            }
+            updateDisplay();
+        });
+
         document.getElementById("upgrade-passive").addEventListener("click", () => {
             if (score >= 50) {
                 score -= 50;
@@ -273,7 +208,6 @@
         function showMenu(menuId) {
             document.getElementById("mainMenu").classList.add("hidden");
             document.getElementById("upgradeMenu").classList.add("hidden");
-            document.getElementById("leaderMenu").classList.add("hidden");
             document.getElementById(menuId).classList.remove("hidden");
         }
 
