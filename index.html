@@ -37,8 +37,10 @@
             border-radius: 10px;
         }
         .hamster {
-            width: 150px;
+            width: 240px;
             cursor: pointer;
+          border-radius: 10px 10px 0 0;
+          transition: transform 0.2s ease-out;
         }
         p {
             font-size: 20px;
@@ -48,9 +50,9 @@
         .stats-bar {
            position: fixed;
            top: 0;
-           width: 90%;
-           background-color: rgba(0, 0, 0, 0.8);
-           padding: 1px 0;  /* Уменьшаем высоту панели */
+           width: 95%;
+           background-color: rgba(0, 0, 0, 0.5);
+           padding: 2px 0;  /* Уменьшаем высоту панели */
            display: flex;
            justify-content: center;
            gap: 10px;
@@ -136,7 +138,7 @@
     </div>
     <div class="container" id="mainMenu">
         <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">Hamster Kombat Tap</h1>
-        <img src="https://46tv.ru/uploads/posts/2024-07/1721374745_hamster-kombat.png" alt="Hamster" class="hamster" id="hamster">
+        <img src="https://i.imgur.com/VPkPPzf.png" alt="Hamster" class="hamster" id="hamster">
     </div>
   <div id="adminMenu" class="hidden" style="
     position: fixed; 
@@ -297,6 +299,33 @@ function openAdminMenu() {
     alert("Добро пожаловать в админ-меню!");
 }
         updateDisplay();
+    </script>
+  <script>
+        // Добавляем обработчик событий для клика по изображению хомяка
+        document.getElementById("hamster").addEventListener("click", (event) => {
+            let hamster = event.target; // Получаем элемент, на который кликнули
+            let rect = hamster.getBoundingClientRect(); // Получаем размеры и позицию элемента
+            
+            // Определяем центр изображения
+            let centerX = rect.left + rect.width / 2;
+            let centerY = rect.top + rect.height / 2;
+            
+            // Вычисляем разницу между точкой клика и центром изображения
+            let deltaX = event.clientX - centerX;
+            let deltaY = event.clientY - centerY;
+            
+            // Рассчитываем угол наклона в зависимости от направления клика
+            let angleX = (deltaY / rect.height) * 100; // Наклон по оси X
+            let angleY = (deltaX / rect.width) * -100; // Наклон по оси Y (отрицательный, чтобы сохранять естественное движение)
+            
+            // Применяем эффект наклона к изображению
+            hamster.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+            
+            // Через 200 мс возвращаем изображение в исходное положение
+            setTimeout(() => {
+                hamster.style.transform = "rotateX(0deg) rotateY(0deg)";
+            }, 200);
+        });
     </script>
 </body>
 </html>
