@@ -39,8 +39,10 @@
         .hamster {
             width: 240px;
             cursor: pointer;
-          border-radius: 10px 10px 0 0;
-          transition: transform 0.2s ease-out;
+            border-radius: 10px 10px 0 0;
+            transition: transform 0.2s ease-out;
+            -webkit-tap-highlight-color: transparent; /* Убирает синий подсвет */
+            touch-action: manipulation; /* Улучшает обработку касаний */
         }
         p {
             font-size: 20px;
