@@ -145,6 +145,7 @@
     0% { transform: translateY(-50px); opacity: 1; }
     100% { transform: translateY(100vh); opacity: 0; }
 }
+      
 
         .hidden { display: none; }
     </style>
@@ -200,6 +201,9 @@
     <div class="upgrade-row">
         <button class="upgrade-button" id="upgrade-passive">Купить пассивный доход (+1/с) - 50 очков</button>
         <button class="upgrade-button buy-max" id="buy-maxpass">Купить максимум</button>
+    </div>
+    <div class="upgrade-row">
+        <button class="upgrade-button" id="delete-data-button" style="background-color: red;">Удалить все данные</button>
     </div>
 </div>
     <button class="toggle-panel-button" id="toggleButton" onclick="togglePanel()">Показать меню</button>
@@ -269,6 +273,35 @@ function closeAdminMenu() {
     clickValue += maxUpgrades; // Добавляем улучшения клика
     updateDisplay();
 });
+document.getElementById("delete-data-button").addEventListener("click", () => {
+    let confirmation = confirm("Вы уверены, что хотите удалить все данные?");
+    console.log("Пользователь подтвердил удаление данных:", confirmation);
+    if (confirmation) {
+        console.log("Очищаем localStorage...");
+        localStorage.clear();
+        
+        // Печатаем состояние localStorage после очистки
+        console.log("Данные из localStorage после очистки:", localStorage);
+
+        // Дополнительная проверка
+        if (localStorage.length === 0) {
+            console.log("localStorage успешно очищен!");
+        } else {
+            console.log("Ошибка: localStorage не очищен.");
+        }
+
+        alert("Данные успешно удалены. Страница будет перезагружена.");
+        
+        // Перезагрузка страницы через 500 мс, чтобы убедиться, что очистка завершена
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+    } else {
+        console.log("Удаление данных отменено.");
+    }
+});
+
+
 
 document.getElementById("buy-maxpass").addEventListener("click", () => {
     let maxUpgrades = Math.floor(score / 50); // Сколько раз можно купить пассивный доход
