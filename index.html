@@ -41,7 +41,7 @@
             cursor: pointer;
         }
         p {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: bold;
             color: white;
         }
@@ -147,14 +147,16 @@
         score += elapsedSeconds * passiveIncome;
 
         function updateDisplay() {
-            document.getElementById("score").textContent = score;
-            document.getElementById("click-value").textContent = clickValue;
-            document.getElementById("passive-income").textContent = passiveIncome;
-            localStorage.setItem("score", score);
-            localStorage.setItem("clickValue", clickValue);
-            localStorage.setItem("passiveIncome", passiveIncome);
-            localStorage.setItem("lastVisit", Date.now());
-        }
+    document.getElementById("score").textContent = formatNumber(score);
+    document.getElementById("click-value").textContent = formatNumber(clickValue);
+    document.getElementById("passive-income").textContent = formatNumber(passiveIncome);
+    
+    localStorage.setItem("score", score);
+    localStorage.setItem("clickValue", clickValue);
+    localStorage.setItem("passiveIncome", passiveIncome);
+    localStorage.setItem("lastVisit", Date.now());
+}
+
 
         document.getElementById("hamster").addEventListener("click", () => {
             score += clickValue;
@@ -169,21 +171,20 @@
             }
         });
 
-        document.getElementById("buy-maxpass").addEventListener("click", () => {
-            while (score >= 50) {
-                score -= 50;
-                passiveIncome++;
-            }
-            updateDisplay();
-        });
-
         document.getElementById("buy-maxclick").addEventListener("click", () => {
-            while (score >= 10) {
-                score -= 10;
-                clickValue++;
-            }
-            updateDisplay();
-        });
+    let maxUpgrades = Math.floor(score / 10); // Сколько раз можно купить улучшение
+    score -= maxUpgrades * 10; // Вычитаем стоимость всех покупок
+    clickValue += maxUpgrades; // Добавляем улучшения клика
+    updateDisplay();
+});
+
+document.getElementById("buy-maxpass").addEventListener("click", () => {
+    let maxUpgrades = Math.floor(score / 50); // Сколько раз можно купить пассивный доход
+    score -= maxUpgrades * 50; // Вычитаем стоимость всех покупок
+    passiveIncome += maxUpgrades; // Добавляем улучшения пассивного дохода
+    updateDisplay();
+});
+
 
         document.getElementById("upgrade-passive").addEventListener("click", () => {
             if (score >= 50) {
@@ -204,6 +205,16 @@
             panel.style.bottom = panel.style.bottom === "0px" ? "-100px" : "0px";
             button.style.bottom = panel.style.bottom === "0px" ? "61px" : "0px";
         }
+
+function formatNumber(num) {
+    if (num >= 1_000_000_000_000) return (num / 1_000_000_000_000).toFixed(2) + " Трлн";
+    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + " Млрд";
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + " М";
+    if (num >= 1_000) return (num / 1_000).toFixed(2) + " К";
+    return num.toString();
+}
+
+
 
         function showMenu(menuId) {
             document.getElementById("mainMenu").classList.add("hidden");
