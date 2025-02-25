@@ -70,11 +70,21 @@
         }
 .upgrade-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
-
+      .buy-max {
+    font-size: 15px;
+    padding: 10px 15px;
+    width: 200px;
+}
+      .upgrade-button {
+    font-size: 10px; /* Увеличиваем шрифт */
+    padding: 10px 20px; /* Увеличиваем отступы */
+    width: 100%; /* Растягиваем кнопки */
+    max-width: 200px; /* Ограничиваем максимальную ширину */
+}
 .upgrade-button {
     flex-grow: 1; /* Кнопки улучшений занимают все доступное место */
 }
@@ -83,16 +93,22 @@
     flex-grow: 0;
     width: 333px; /* Фиксированная ширина для кнопок "Купить максимум" */
 }
-
-        .menu-button, .upgrade-button {
-            padding: 10px 100px;
+ .upgrade-button {
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            border-radius: 15px;
+        }
+  .menu-button {
+            padding: 10px 60px;
             border: none;
             cursor: pointer;
             font-size: 18px;
             border-radius: 15px;
         }
         .menu-button { background-color: black; color: white; }
-        .menu-button:hover { background-color: gray; }
+        .menu-button:hover { background-color: grey; }
         .upgrade-button { background-color: gold; color: black; display: block; margin: 10px auto; }
         .toggle-panel-button {
             position: fixed;
