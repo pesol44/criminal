@@ -122,6 +122,21 @@
         <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">Hamster Kombat Tap</h1>
         <img src="https://46tv.ru/uploads/posts/2024-07/1721374745_hamster-kombat.png" alt="Hamster" class="hamster" id="hamster">
     </div>
+  <div id="adminMenu" class="hidden" style="
+    position: fixed; 
+    top: 50%; left: 50%; 
+    transform: translate(-50%, -50%);
+    background-color: black; 
+    color: white; 
+    padding: 20px; 
+    border-radius: 10px; 
+    text-align: center;
+    z-index: 99999">
+    <h2>Админ-меню</h2>
+    <p>Добро пожаловать, Админ!</p>
+    <button onclick="giveCoins()" style="padding: 10px; font-size: 16px; margin-bottom: 10px;">Выдать монеты</button>
+    <button onclick="closeAdminMenu()" style="padding: 10px; font-size: 16px;">Закрыть</button>
+</div>
     <div class="container hidden upgrade-menu" id="upgradeMenu">
     <h2 style="color: white;">Улучшения</h2>
     <div class="upgrade-row">
@@ -156,8 +171,21 @@
     localStorage.setItem("passiveIncome", passiveIncome);
     localStorage.setItem("lastVisit", Date.now());
 }
-
-
+          function giveCoins() {
+    let amount = prompt("Введите количество монет:");
+    amount = parseInt(amount);
+    
+    if (!isNaN(amount) && amount > 0) {
+        score += amount;
+        updateDisplay(); // Обновляем баланс на экране
+        alert(`Выдано ${amount} монет!`);
+    } else {
+        alert("Некорректное число!");
+    }
+}
+function closeAdminMenu() {
+    document.getElementById("adminMenu").classList.add("hidden");
+}
         document.getElementById("hamster").addEventListener("click", () => {
             score += clickValue;
             updateDisplay();
@@ -205,23 +233,53 @@ document.getElementById("buy-maxpass").addEventListener("click", () => {
             panel.style.bottom = panel.style.bottom === "0px" ? "-100px" : "0px";
             button.style.bottom = panel.style.bottom === "0px" ? "61px" : "0px";
         }
-
 function formatNumber(num) {
-    if (num >= 1_000_000_000_000) return (num / 1_000_000_000_000).toFixed(2) + " Трлн";
-    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + " Млрд";
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + " М";
-    if (num >= 1_000) return (num / 1_000).toFixed(2) + " К";
+    if (num >= 1_000_000_000_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000_000_000_000).toFixed(2) + "UDe";
+    if (num >= 1_000_000_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000_000_000).toFixed(2) + "De";
+    if (num >= 1_000_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000_000).toFixed(2) + "No";
+    if (num >= 1_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000).toFixed(2) + "Oc";
+    if (num >= 1_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000).toFixed(2) + "Sp";
+    if (num >= 1_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000).toFixed(2) + "Sx";
+    if (num >= 1_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000).toFixed(2) + "Qt";
+    if (num >= 1_000_000_000_000_000) return (num / 1_000_000_000_000_000).toFixed(2) + "Qd";
+    if (num >= 1_000_000_000_000) return (num / 1_000_000_000_000).toFixed(2) + "T";
+    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + "B";
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
+    if (num >= 1_000) return (num / 1_000).toFixed(2) + "K";
     return num.toString();
 }
-
-
-
         function showMenu(menuId) {
             document.getElementById("mainMenu").classList.add("hidden");
             document.getElementById("upgradeMenu").classList.add("hidden");
             document.getElementById(menuId).classList.remove("hidden");
         }
+          let inputBuffer = ""; // Буфер ввода
+const secretCode = "сигма"; // Тайное слово
+const adminPassword = "сигма"; // Пароль для входа в админ-меню
 
+document.addEventListener("keydown", function (event) {
+    inputBuffer += event.key.toLowerCase(); // Добавляем введённый символ
+    inputBuffer = inputBuffer.slice(-secretCode.length); // Ограничиваем длину
+
+    if (inputBuffer === secretCode) {
+        showAdminLogin(); // Показываем окно ввода пароля
+        inputBuffer = ""; // Очищаем буфер
+    }
+});
+
+function showAdminLogin() {
+    let password = prompt("Введите пароль администратора:");
+    if (password === adminPassword) {
+        openAdminMenu();
+    } else {
+        alert("Неверный пароль!");
+    }
+}
+
+function openAdminMenu() {
+    document.getElementById("adminMenu").classList.remove("hidden");
+    alert("Добро пожаловать в админ-меню!");
+}
         updateDisplay();
     </script>
 </body>
