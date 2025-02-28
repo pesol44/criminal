@@ -127,24 +127,29 @@
             showNextLine();
         });
 
-        document.getElementById('nextButton').addEventListener('click', () => {
-            const userInput = document.getElementById('userInput').value;
-            const currentLine = poems[currentPoemIndex][currentLineIndex].replace(/[^\w\s]/g, '');
-            if (userInput === currentLine) {
-                currentLineIndex++;
-                if (currentLineIndex < poems[currentPoemIndex].length) {
-                    showNextLine();
-                } else {
-                    alert('Вы выучили стих!');
-                    document.getElementById('learningSection').classList.add('hidden');
-                }
-            } else {
-                alert('Неверно, попробуйте еще раз.');
-            }
-            document.getElementById('userInput').value = '';
-            document.getElementById('userInput').classList.add('hidden');
-            document.getElementById('nextButton').classList.add('hidden');
-        });
+       document.getElementById('nextButton').addEventListener('click', () => {
+    const userInput = document.getElementById('userInput').value;
+    const currentLine = poems[currentPoemIndex][currentLineIndex];
+
+    // Удаляем знаки препинания и лишние пробелы, приводим к нижнему регистру
+    const cleanedUserInput = userInput.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const cleanedCurrentLine = currentLine.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+    if (cleanedUserInput === cleanedCurrentLine) {
+        currentLineIndex++;
+        if (currentLineIndex < poems[currentPoemIndex].length) {
+            showNextLine();
+        } else {
+            alert('Вы выучили стих!');
+            document.getElementById('learningSection').classList.add('hidden');
+        }
+    } else {
+        alert('Неверно, попробуйте еще раз.');
+    }
+    document.getElementById('userInput').value = '';
+    document.getElementById('userInput').classList.add('hidden');
+    document.getElementById('nextButton').classList.add('hidden');
+});
 
         function showNextLine() {
             const currentLine = poems[currentPoemIndex][currentLineIndex];
@@ -154,7 +159,8 @@
                 document.getElementById('currentLine').textContent = '';
                 document.getElementById('userInput').classList.remove('hidden');
                 document.getElementById('nextButton').classList.remove('hidden');
-            }, 60000); // 1 минута
+            }, 
+                               30000); // 1 минута
         }
 
         // Исправленная функция
