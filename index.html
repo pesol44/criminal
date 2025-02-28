@@ -81,7 +81,7 @@
         <button id="redirectButton" class="redirectToPoems" onclick="redirectToPoems()">Обратно в $Krml тап</button>
         <div id="learningSection" class="hidden">
             <p id="currentLine"></p>
-            <div id="timer" class="timer">01:00</div>
+            <div id="timer" class="timer">0:30</div>
             <input type="text" id="userInput" class="input hidden" placeholder="Повторите строку без знаков препинания">
             <button id="nextButton" class="button hidden">Следующая строка</button>
         </div>
@@ -149,7 +149,7 @@
         function showNextLine() {
             const currentLine = poems[currentPoemIndex][currentLineIndex];
             document.getElementById('currentLine').textContent = currentLine;
-            startTimer(60); // 1 минута
+            startTimer(30); // 1 минута
             timer = setTimeout(() => {
                 document.getElementById('currentLine').textContent = '';
                 document.getElementById('userInput').classList.remove('hidden');
