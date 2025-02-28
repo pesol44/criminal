@@ -37,7 +37,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px; /* Добавим отступ для красоты */
+            margin-top: 10px;
         }
         .button {
             background-color: #007bff;
@@ -77,11 +77,10 @@
             <option value="1">Белеет парус одинокой...</option>
         </select>
         <button id="startButton" class="button">Учить</button>
-        <!-- Исправленный id и вызов функции -->
         <button id="redirectButton" class="redirectToPoems" onclick="redirectToPoems()">Обратно в $Krml тап</button>
         <div id="learningSection" class="hidden">
             <p id="currentLine"></p>
-            <div id="timer" class="timer">0:30</div>
+            <div id="timer" class="timer">0:20</div>
             <input type="text" id="userInput" class="input hidden" placeholder="Повторите строку без знаков препинания">
             <button id="nextButton" class="button hidden">Следующая строка</button>
         </div>
@@ -100,7 +99,7 @@
                 "От их всеслышащих ушей"
             ],
             [
-                "Белеет парус одинокой",
+                "Белеет парус одинокий",
                 "В тумане моря голубом",
                 "Что ищет он в стране далекой",
                 "Что кинул он в краю родном",
@@ -119,6 +118,7 @@
         let currentLineIndex = 0;
         let timer;
         let countdown;
+        let learnedPoems = JSON.parse(localStorage.getItem("learnedPoems")) || 0;
 
         document.getElementById('startButton').addEventListener('click', () => {
             currentPoemIndex = document.getElementById('poemSelect').value;
@@ -127,43 +127,95 @@
             showNextLine();
         });
 
-       document.getElementById('nextButton').addEventListener('click', () => {
-    const userInput = document.getElementById('userInput').value;
-    const currentLine = poems[currentPoemIndex][currentLineIndex];
+        document.getElementById('nextButton').addEventListener('click', () => {
+            const userInput = document.getElementById('userInput').value;
+            const currentLine = poems[currentPoemIndex][currentLineIndex];
 
-    // Удаляем знаки препинания и лишние пробелы, приводим к нижнему регистру
-    const cleanedUserInput = userInput.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
-    const cleanedCurrentLine = currentLine.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+            // Удаляем знаки препинания, лишние пробелы и приводим к нижнему регистру
+            const cleanedUserInput = userInput.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+            const cleanedCurrentLine = currentLine.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 
-    if (cleanedUserInput === cleanedCurrentLine) {
-        currentLineIndex++;
-        if (currentLineIndex < poems[currentPoemIndex].length) {
-            showNextLine();
-        } else {
-            alert('Вы выучили стих!');
-            document.getElementById('learningSection').classList.add('hidden');
-        }
-    } else {
-        alert('Неверно, попробуйте еще раз.');
-    }
-    document.getElementById('userInput').value = '';
-    document.getElementById('userInput').classList.add('hidden');
-    document.getElementById('nextButton').classList.add('hidden');
-});
+            if (cleanedUserInput === cleanedCurrentLine) {
+                currentLineIndex++;
+
+                // Проверяем, нужно ли выводить четверостишие
+                if (currentLineIndex % 4 === 0 && currentLineIndex < poems[currentPoemIndex].length) {
+                    showQuatrain();
+                } else if (currentLineIndex < poems[currentPoemIndex].length) {
+                    showNextLine();
+                } else {
+                    // Стих выучен
+                    alert('Вы выучили стих!');
+                    document.getElementById('learningSection').classList.add('hidden');
+                    rewardUser();
+                }
+            } else {
+                alert('Неверно, попробуйте еще раз.');
+            }
+            document.getElementById('userInput').value = '';
+            document.getElementById('userInput').classList.add('hidden');
+            document.getElementById('nextButton').classList.add('hidden');
+        });
 
         function showNextLine() {
             const currentLine = poems[currentPoemIndex][currentLineIndex];
             document.getElementById('currentLine').textContent = currentLine;
-            startTimer(30); // 1 минута
+            startTimer(20); // 30 секунд
             timer = setTimeout(() => {
                 document.getElementById('currentLine').textContent = '';
                 document.getElementById('userInput').classList.remove('hidden');
                 document.getElementById('nextButton').classList.remove('hidden');
-            }, 
-                               30000); // 1 минута
+            }, 20000); // 30 секунд
         }
 
-        // Исправленная функция
+        function showQuatrain() {
+            const quatrain = poems[currentPoemIndex].slice(currentLineIndex - 4, currentLineIndex).join("\n");
+            document.getElementById('currentLine').textContent = quatrain;
+            startTimer(60); // 1 минута для четверостишия
+
+            timer = setTimeout(() => {
+                document.getElementById('currentLine').textContent = '';
+                const userInput = prompt(`Повторите четверостишие:\n${quatrain}`);
+
+                // Удаляем знаки препинания, лишние пробелы и приводим к нижнему регистру
+                const cleanedUserInput = userInput.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+                const cleanedQuatrain = quatrain.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+                if (cleanedUserInput === cleanedQuatrain) {
+                    showNextLine();
+                } else {
+                    alert('Неверно, попробуйте еще раз.');
+                    showQuatrain(); // Повторяем запрос
+                }
+            }, 60000); // 1 минута
+        }
+
+        function rewardUser() {
+            learnedPoems++;
+            localStorage.setItem("learnedPoems", JSON.stringify(learnedPoems));
+
+            // Отправляем запрос на начисление $Krml
+            fetch('https://pesol45.github.io/hamstercriminal/reward', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reward: 1e12 }), // 1T $Krml
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Вам начислено 1T $Krml за выученный стих!');
+                } else {
+                    alert('Ошибка начисления $Krml. Попробуйте позже.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Ошибка начисления $Krml. Попробуйте позже.');
+            });
+        }
+
         function redirectToPoems() {
             window.location.href = "https://pesol45.github.io/hamstercriminal/";
         }
