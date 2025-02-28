@@ -3,409 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamster Kombat Tap</title>
+    <title>Учим стихи</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 1);
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            flex-direction: column;
-        }
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('https://avatars.mds.yandex.net/get-shedevrum/11917197/img_7ab0558d02f411efbfbc0a6d81cb79fd/orig') no-repeat center center;
-            background-size: cover;
-            opacity: 0.3;
-            z-index: -1;
+            margin: 0;
         }
         .container {
-            position: relative;
-            z-index: 1;
+            background-color: #ffff;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
-        }
-        .hamster {
-            width: 240px;
-            cursor: pointer;
-          border-radius: 10px 10px 0 0;
-          transition: transform 0.2s ease-out;
-        }
-        p {
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-        }
-        .stats-bar {
-           position: fixed;
-           top: 0;
-           width: 95%;
-           background-color: rgba(0, 0, 0, 0.5);
-           padding: 2px 0;  /* Уменьшаем высоту панели */
-           display: flex;
-           justify-content: center;
-           gap: 10px;
-           border-radius: 10px 10px 0 0; /* Закругляем верхние углы */
-}
-
-        .menu-bar {
-            position: fixed;
-            bottom: -100px;
-            left: 0;
+            box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            padding: 10px 0;
-            display: flex;
-            justify-content: center;
-            transition: bottom 0.5s ease-in-out;
         }
-.upgrade-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-}
-      .buy-max {
-    font-size: 15px;
-    padding: 10px 15px;
-    width: 200px;
-}
-      .upgrade-button {
-    font-size: 10px; /* Увеличиваем шрифт */
-    padding: 10px 20px; /* Увеличиваем отступы */
-    width: 100%; /* Растягиваем кнопки */
-    max-width: 200px; /* Ограничиваем максимальную ширину */
-}
-.upgrade-button {
-    flex-grow: 1; /* Кнопки улучшений занимают все доступное место */
-}
-
-.buy-max {
-    flex-grow: 0;
-    width: 333px; /* Фиксированная ширина для кнопок "Купить максимум" */
-}
- .upgrade-button {
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-            border-radius: 15px;
+        .poem {
+            margin-bottom: 20px;
+            font-size: 25px;
+            line-height: 2;
         }
-  .menu-button {
-            padding: 5px 10px;
+        .redirectToPoems {
+            background-color: #007bff;
+            color: #fff;
             border: none;
-            cursor: pointer;
-            font-size: 18px;
-            border-radius: 15px;
-      }
-    .profil-button{
-    padding: 10px 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            border-radius: 15px;
-    
-    }
-        .menu-button { background-color: black; color: white; }
-        .menu-button:hover { background-color: grey; }
-        .upgrade-button { background-color: gold; color: black; display: block; margin: 10px auto; }
-        .toggle-panel-button {
-            position: fixed;
-            bottom: 0px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 10px;
-            background-color: blue;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
+            padding: 10px 20px;
             border-radius: 5px;
-            transition: bottom 0.5s ease-in-out;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px; /* Добавим отступ для красоты */
         }
-      .falling-hamster {
-    position: fixed;
-    width: 40px;
-    animation: fall 2s linear forwards;
-    top: -50px;
-}
-
-@keyframes fall {
-    0% { transform: translateY(-50px); opacity: 1; }
-    100% { transform: translateY(100vh); opacity: 0; }
-}
-      
-
-        .hidden { display: none; }
+        .button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .timer {
+            font-size: 24px;
+            margin-top: 10px;
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
-    <div class="background"></div>
-    <div class="stats-bar">
-        <p>$Krml: <span id="score">0</span></p>
-        <p>$Krml за клик: <span id="click-value">1</span></p>
-        <p>Пассивный доход: <span id="passive-income">0</span> $Krml в секунду</p>
+    <div class="container">
+        <h1>Выберите стих</h1>
+        <select id="poemSelect" class="poem">
+            <option value="0">Прощай, немытая Россия...</option>
+            <option value="1">Белеет парус одинокой...</option>
+        </select>
+        <button id="startButton" class="button">Учить</button>
+        <!-- Исправленный id и вызов функции -->
+        <button id="redirectButton" class="redirectToPoems" onclick="redirectToPoems()">Обратно в $Krml тап</button>
+        <div id="learningSection" class="hidden">
+            <p id="currentLine"></p>
+            <div id="timer" class="timer">01:00</div>
+            <input type="text" id="userInput" class="input hidden" placeholder="Повторите строку без знаков препинания">
+            <button id="nextButton" class="button hidden">Следующая строка</button>
+        </div>
     </div>
-    <div class="container" id="mainMenu">
-        <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">Тапать монетку</h1>
-        <img src="https://i.imgur.com/VPkPPzf.png" alt="Hamster" class="hamster" id="hamster">
-    </div>
-  <div id="adminMenu" class="hidden" style="
-    position: fixed; 
-    top: 50%; left: 50%; 
-    transform: translate(-50%, -50%);
-    background-color: black; 
-    color: white; 
-    padding: 20px; 
-    border-radius: 10px; 
-    text-align: center;
-    z-index: 99999">
-    <h2>Админ-меню</h2>
-    <p>Добро пожаловать, Админ!</p>
-    <button onclick="giveCoins()" style="padding: 10px; font-size: 16px; margin-bottom: 10px;">Выдать монеты</button>
-    <button onclick="closeAdminMenu()" style="padding: 10px; font-size: 16px;">Закрыть</button>
-</div>
-    <div class="container hidden upgrade-menu" id="upgradeMenu">
-    <h2 style="color: white;">Улучшения</h2>
-    <div class="upgrade-row">
-        <button class="upgrade-button" id="upgrade-click">Улучшить клик (+1) - 10 очков</button>
-        <button class="upgrade-button buy-max" id="buy-maxclick">Купить максимум</button>
-    </div>
-    <div class="upgrade-row">
-        <button class="upgrade-button" id="upgrade-passive">Купить пассивный доход (+1/с) - 50 очков</button>
-        <button class="upgrade-button buy-max" id="buy-maxpass">Купить максимум</button>
-    </div>
-</div>
-    <div class="menu-bar" id="menuBar">
-        <button class="menu-button" onclick="showMenu('mainMenu')">Главная</button>
-        <button class="menu-button" onclick="showMenu('upgradeMenu')">Улучшения</button>
-        <button class="menu-button" onclick="showMenu('profilMenu')">Профиль</button>
-    </div>
-   <div class="container hidden profil-menu" id="profilMenu">
-    <h2 style="color: white;">Профиль</h2>
-    <div class="upgrade-row">
-        <button class="upgrade-button" id="upgrade-click">Улучшить клик (+1) - 10 очков</button>
-        <button class="upgrade-button buy-max" id="buy-maxclick">Купить максимум</button>
-    </div>
-    <div class="upgrade-row">
-        <button class="upgrade-button" id="upgrade-passive">Купить пассивный доход (+1/с) - 50 очков</button>
-        <button class="upgrade-button buy-max" id="buy-maxpass">Купить максимум</button>
-    </div>
-    <div class="upgrade-row">
-        <button class="upgrade-button" id="delete-data-button" style="background-color: red;">Удалить все данные</button>
-    </div>
-</div>
-    <button class="toggle-panel-button" id="toggleButton" onclick="togglePanel()">Показать меню</button>
-        <script>
-        let score = parseInt(localStorage.getItem("score")) || 0;
-        let clickValue = parseInt(localStorage.getItem("clickValue")) || 1;
-        let passiveIncome = parseInt(localStorage.getItem("passiveIncome")) || 0;
-        let lastVisit = parseInt(localStorage.getItem("lastVisit")) || Date.now();
-        let elapsedSeconds = Math.floor((Date.now() - lastVisit) / 1000);
-        score += elapsedSeconds * passiveIncome;
 
-        function updateDisplay() {
-    document.getElementById("score").textContent = formatNumber(score);
-    document.getElementById("click-value").textContent = formatNumber(clickValue);
-    document.getElementById("passive-income").textContent = formatNumber(passiveIncome);
-    
-    localStorage.setItem("score", score);
-    localStorage.setItem("clickValue", clickValue);
-    localStorage.setItem("passiveIncome", passiveIncome);
-    localStorage.setItem("lastVisit", Date.now());
-}
-function createFallingHamster() {
-            const hamster = document.createElement("img");
-            hamster.src = "https://i.imgur.com/VPkPPzf.png";
-            hamster.classList.add("falling-hamster");
-            hamster.style.left = `${Math.random() * 100}%`;
-            document.body.appendChild(hamster);
+    <script>
+        const poems = [
+            [
+                "Прощай, немытая Россия",
+                "Страна рабов, страна господ",
+                "И вы, мундиры голубые",
+                "И ты, им преданный народ",
+                "Быть может, за стеной Кавказа",
+                "Сокроюсь от твоих пашей",
+                "От их всевидящего глаза",
+                "От их всеслышащих ушей"
+            ],
+            [
+                "Белеет парус одинокой",
+                "В тумане моря голубом",
+                "Что ищет он в стране далекой",
+                "Что кинул он в краю родном",
+                "Играют волны — ветер свищет",
+                "И мачта гнется и скрыпит",
+                "Увы он счастия не ищет",
+                "И не от счастия бежит",
+                "Под ним струя светлей лазури",
+                "Над ним луч солнца золотой",
+                "А он, мятежный, просит бури",
+                "Как будто в бурях есть покой"
+            ]
+        ];
 
-            // Удаление хомяка после завершения анимации
-            hamster.addEventListener("animationend", () => {
-                hamster.remove();
-            }, { once: true });
-        }
-          function giveCoins() {
-    let amount = prompt("Введите количество монет:");
-    amount = parseInt(amount);
-    
-    if (!isNaN(amount) && amount > 0) {
-        score += amount;
-        updateDisplay(); // Обновляем баланс на экране
-        alert(`Выдано ${amount} монет!`);
-    } else {
-        alert("Некорректное число!");
-    }
-}
-function closeAdminMenu() {
-    document.getElementById("adminMenu").classList.add("hidden");
-}
-        document.getElementById("hamster").addEventListener("click", () => {
-    score += clickValue;
-    updateDisplay();
-    createFallingHamster(); // Добавляем вызов функции
-});
+        let currentPoemIndex = 0;
+        let currentLineIndex = 0;
+        let timer;
+        let countdown;
 
+        document.getElementById('startButton').addEventListener('click', () => {
+            currentPoemIndex = document.getElementById('poemSelect').value;
+            currentLineIndex = 0;
+            document.getElementById('learningSection').classList.remove('hidden');
+            showNextLine();
+        });
 
-        document.getElementById("upgrade-click").addEventListener("click", () => {
-            if (score >= 10) {
-                score -= 10;
-                clickValue++;
-                updateDisplay();
+        document.getElementById('nextButton').addEventListener('click', () => {
+            const userInput = document.getElementById('userInput').value;
+            const currentLine = poems[currentPoemIndex][currentLineIndex].replace(/[^\w\s]/g, '');
+            if (userInput === currentLine) {
+                currentLineIndex++;
+                if (currentLineIndex < poems[currentPoemIndex].length) {
+                    showNextLine();
+                } else {
+                    alert('Вы выучили стих!');
+                    document.getElementById('learningSection').classList.add('hidden');
+                }
+            } else {
+                alert('Неверно, попробуйте еще раз.');
             }
+            document.getElementById('userInput').value = '';
+            document.getElementById('userInput').classList.add('hidden');
+            document.getElementById('nextButton').classList.add('hidden');
         });
 
-        document.getElementById("buy-maxclick").addEventListener("click", () => {
-    let maxUpgrades = Math.floor(score / 10); // Сколько раз можно купить улучшение
-    score -= maxUpgrades * 10; // Вычитаем стоимость всех покупок
-    clickValue += maxUpgrades; // Добавляем улучшения клика
-    updateDisplay();
-});
-document.getElementById("delete-data-button").addEventListener("click", () => {
-    let confirmation = confirm("Вы уверены, что хотите удалить все данные?");
-    console.log("Пользователь подтвердил удаление данных:", confirmation);
-    if (confirmation) {
-        console.log("Очищаем localStorage...");
-        localStorage.clear();
-        
-        // Печатаем состояние localStorage после очистки
-        console.log("Данные из localStorage после очистки:", localStorage);
-
-        // Дополнительная проверка
-        if (localStorage.length === 0) {
-            console.log("localStorage успешно очищен!");
-        } else {
-            console.log("Ошибка: localStorage не очищен.");
+        function showNextLine() {
+            const currentLine = poems[currentPoemIndex][currentLineIndex];
+            document.getElementById('currentLine').textContent = currentLine;
+            startTimer(60); // 1 минута
+            timer = setTimeout(() => {
+                document.getElementById('currentLine').textContent = '';
+                document.getElementById('userInput').classList.remove('hidden');
+                document.getElementById('nextButton').classList.remove('hidden');
+            }, 60000); // 1 минута
         }
 
-        alert("Данные успешно удалены. Страница будет перезагружена.");
-        
-        // Перезагрузка страницы через 500 мс, чтобы убедиться, что очистка завершена
-        setTimeout(() => {
-            location.reload();
-        }, 500);
-    } else {
-        console.log("Удаление данных отменено.");
-    }
-});
-
-
-
-document.getElementById("buy-maxpass").addEventListener("click", () => {
-    let maxUpgrades = Math.floor(score / 50); // Сколько раз можно купить пассивный доход
-    score -= maxUpgrades * 50; // Вычитаем стоимость всех покупок
-    passiveIncome += maxUpgrades; // Добавляем улучшения пассивного дохода
-    updateDisplay();
-});
-
-
-        document.getElementById("upgrade-passive").addEventListener("click", () => {
-            if (score >= 50) {
-                score -= 50;
-                passiveIncome++;
-                updateDisplay();
-            }
-        });
-
-        setInterval(() => {
-            score += passiveIncome;
-            updateDisplay();
-        }, 1000);
-
-        function togglePanel() {
-            const panel = document.getElementById("menuBar");
-            const button = document.getElementById("toggleButton");
-            panel.style.bottom = panel.style.bottom === "0px" ? "-100px" : "0px";
-            button.style.bottom = panel.style.bottom === "0px" ? "51px" : "0px";
+        // Исправленная функция
+        function redirectToPoems() {
+            window.location.href = "https://pesol45.github.io/hamstercriminal/";
         }
-function formatNumber(num) {
-    if (num >= 1_000_000_000_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000_000_000_000).toFixed(2) + "UDe";
-    if (num >= 1_000_000_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000_000_000).toFixed(2) + "De";
-    if (num >= 1_000_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000_000).toFixed(2) + "No";
-    if (num >= 1_000_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000_000).toFixed(2) + "Oc";
-    if (num >= 1_000_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000_000).toFixed(2) + "Sp";
-    if (num >= 1_000_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000_000).toFixed(2) + "Sx";
-    if (num >= 1_000_000_000_000_000_000) return (num / 1_000_000_000_000_000_000).toFixed(2) + "Qt";
-    if (num >= 1_000_000_000_000_000) return (num / 1_000_000_000_000_000).toFixed(2) + "Qd";
-    if (num >= 1_000_000_000_000) return (num / 1_000_000_000_000).toFixed(2) + "T";
-    if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + "B";
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
-    if (num >= 1_000) return (num / 1_000).toFixed(2) + "K";
-    return num.toString();
-}
-        function showMenu(menuId) {
-            document.getElementById("mainMenu").classList.add("hidden");
-            document.getElementById("upgradeMenu").classList.add("hidden");
-            document.getElementById("profilMenu").classList.add("hidden")
-            document.getElementById(menuId).classList.remove("hidden");
+
+        function startTimer(seconds) {
+            let remainingTime = seconds;
+            countdown = setInterval(() => {
+                remainingTime--;
+                const minutes = Math.floor(remainingTime / 60);
+                const secs = remainingTime % 60;
+                document.getElementById('timer').textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                if (remainingTime <= 0) {
+                    clearInterval(countdown);
+                }
+            }, 1000);
         }
-          let inputBuffer = ""; // Буфер ввода
-const secretCode = "сигма"; // Тайное слово
-const adminPassword = "сигма"; // Пароль для входа в админ-меню
-
-document.addEventListener("keydown", function (event) {
-    inputBuffer += event.key.toLowerCase(); // Добавляем введённый символ
-    inputBuffer = inputBuffer.slice(-secretCode.length); // Ограничиваем длину
-
-    if (inputBuffer === secretCode) {
-        showAdminLogin(); // Показываем окно ввода пароля
-        inputBuffer = ""; // Очищаем буфер
-    }
-});
-
-function showAdminLogin() {
-    let password = prompt("Введите пароль администратора:");
-    if (password === adminPassword) {
-        openAdminMenu();
-    } else {
-        alert("Неверный пароль!");
-    }
-}
-
-function openAdminMenu() {
-    document.getElementById("adminMenu").classList.remove("hidden");
-    alert("Добро пожаловать в админ-меню!");
-}
-        updateDisplay();
-    </script>
-  <script>
-        // Добавляем обработчик событий для клика по изображению хомяка
-        document.getElementById("hamster").addEventListener("click", (event) => {
-            let hamster = event.target; // Получаем элемент, на который кликнули
-            let rect = hamster.getBoundingClientRect(); // Получаем размеры и позицию элемента
-            
-            // Определяем центр изображения
-            let centerX = rect.left + rect.width / 2;
-            let centerY = rect.top + rect.height / 2;
-            
-            // Вычисляем разницу между точкой клика и центром изображения
-            let deltaX = event.clientX - centerX;
-            let deltaY = event.clientY - centerY;
-            
-            // Рассчитываем угол наклона в зависимости от направления клика
-            let angleX = (deltaY / rect.height) * 100; // Наклон по оси X
-            let angleY = (deltaX / rect.width) * -100; // Наклон по оси Y (отрицательный, чтобы сохранять естественное движение)
-            
-            // Применяем эффект наклона к изображению
-            hamster.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
-            
-            // Через 200 мс возвращаем изображение в исходное положение
-            setTimeout(() => {
-                hamster.style.transform = "rotateX(0deg) rotateY(0deg)";
-            }, 200);
-        });
     </script>
 </body>
 </html>
