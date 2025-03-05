@@ -5,11 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Змейка</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; background: #222; color: white; }
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: #222;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
         canvas { background: black; display: none; touch-action: none; }
         #menu { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
         button { font-size: 20px; padding: 10px 20px; margin-top: 20px; cursor: pointer; }
         #winMessage { display: none; font-size: 24px; margin-top: 10px; color: green; }
+
+        /* Стили для аналогового джойстика */
+        .joystick-container {
+            display: none;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .joystick {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -17,15 +53,22 @@
         <h1>Змейка</h1>
         <button onclick="startGame()">Играть</button>
     </div>
-    
+
     <canvas id="gameCanvas"></canvas>
     <div id="winMessage">Поздравляем! Пароль: <b>chillguys</b></div>
+
+    <!-- Аналоговый джойстик -->
+    <div class="joystick-container" id="joystickContainer">
+        <div class="joystick" id="joystick"></div>
+    </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        const size = 40; // Размер поля 40x40
-        const tileSize = 10; // Размер одной клетки
+        const joystickContainer = document.getElementById("joystickContainer");
+        const joystick = document.getElementById("joystick");
+        const size = 40;
+        const tileSize = 10;
         canvas.width = size * tileSize;
         canvas.height = size * tileSize;
 
@@ -34,44 +77,26 @@
         function startGame() {
             document.getElementById("menu").style.display = "none";
             canvas.style.display = "block";
+            joystickContainer.style.display = "flex"; // Показать джойстик
             snake = [{ x: 20, y: 20 }];
             direction = "RIGHT";
             food = spawnFood();
-            document.addEventListener("keydown", changeDirection);
-            setupTouchControls();
+            document.addEventListener("keydown", handleKeydown);
             gameInterval = setInterval(gameLoop, 100);
         }
 
-        function changeDirection(event) {
-            if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-            else if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-            else if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-            else if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+        function handleKeydown(event) {
+            if (event.key === "ArrowUp") changeDirection("UP");
+            else if (event.key === "ArrowDown") changeDirection("DOWN");
+            else if (event.key === "ArrowLeft") changeDirection("LEFT");
+            else if (event.key === "ArrowRight") changeDirection("RIGHT");
         }
 
-        function setupTouchControls() {
-            let startX, startY;
-            document.addEventListener("touchstart", e => {
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-            });
-
-            document.addEventListener("touchmove", e => {
-                if (!startX || !startY) return;
-                let endX = e.touches[0].clientX;
-                let endY = e.touches[0].clientY;
-                let diffX = endX - startX;
-                let diffY = endY - startY;
-
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 0 && direction !== "LEFT") direction = "RIGHT";
-                    else if (diffX < 0 && direction !== "RIGHT") direction = "LEFT";
-                } else {
-                    if (diffY > 0 && direction !== "UP") direction = "DOWN";
-                    else if (diffY < 0 && direction !== "DOWN") direction = "UP";
-                }
-                startX = startY = null;
-            });
+        function changeDirection(newDirection) {
+            if (newDirection === "UP" && direction !== "DOWN") direction = "UP";
+            else if (newDirection === "DOWN" && direction !== "UP") direction = "DOWN";
+            else if (newDirection === "LEFT" && direction !== "RIGHT") direction = "LEFT";
+            else if (newDirection === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
         }
 
         function spawnFood() {
@@ -90,7 +115,6 @@
             if (direction === "LEFT") head.x -= 1;
             if (direction === "RIGHT") head.x += 1;
 
-            // Проход сквозь стены
             if (head.x < 0) head.x = size - 1;
             if (head.x >= size) head.x = 0;
             if (head.y < 0) head.y = size - 1;
@@ -131,6 +155,42 @@
             update();
             draw();
         }
+
+        // Аналоговый джойстик
+        const radius = joystickContainer.offsetWidth / 2;
+        const joystickRadius = joystick.offsetWidth / 2;
+        let isDragging = false;
+
+        joystick.addEventListener('mousedown', () => isDragging = true);
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            joystick.style.transform = 'translate(0, 0)';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const rect = joystickContainer.getBoundingClientRect();
+            const centerX = rect.left + radius;
+            const centerY = rect.top + radius;
+
+            let x = e.clientX - centerX;
+            let y = e.clientY - centerY;
+            const distance = Math.sqrt(x * x + y * y);
+
+            if (distance > radius - joystickRadius) {
+                const angle = Math.atan2(y, x);
+                x = Math.cos(angle) * (radius - joystickRadius);
+                y = Math.sin(angle) * (radius - joystickRadius);
+            }
+
+            joystick.style.transform = `translate(${x}px, ${y}px)`;
+
+            if (Math.abs(x) > Math.abs(y)) {
+                changeDirection(x > 0 ? "RIGHT" : "LEFT");
+            } else {
+                changeDirection(y > 0 ? "DOWN" : "UP");
+            }
+        });
     </script>
 </body>
 </html>
