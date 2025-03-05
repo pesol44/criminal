@@ -3,234 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Учим стихи</title>
+    <title>Змейка</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #ffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-        }
-        .poem {
-            margin-bottom: 20px;
-            font-size: 25px;
-            line-height: 2;
-        }
-        .redirectToPoems {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        .button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .hidden {
-            display: none;
-        }
-        .input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        .timer {
-            font-size: 24px;
-            margin-top: 10px;
-            color: #007bff;
-        }
+        body { text-align: center; font-family: Arial, sans-serif; background: #222; color: white; }
+        canvas { background: black; display: none; touch-action: none; }
+        #menu { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        button { font-size: 20px; padding: 10px 20px; margin-top: 20px; cursor: pointer; }
+        #winMessage { display: none; font-size: 24px; margin-top: 10px; color: green; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Выберите стих</h1>
-        <select id="poemSelect" class="poem">
-            <option value="0">Прощай, немытая Россия...</option>
-            <option value="1">Белеет парус одинокой...</option>
-        </select>
-        <button id="startButton" class="button">Учить</button>
-        <button id="redirectButton" class="redirectToPoems" onclick="redirectToPoems()">Обратно в $Krml тап</button>
-        <div id="learningSection" class="hidden">
-            <p id="currentLine"></p>
-            <div id="timer" class="timer">0:20</div>
-            <input type="text" id="userInput" class="input hidden" placeholder="Повторите строку без знаков препинания">
-            <button id="nextButton" class="button hidden">Следующая строка</button>
-        </div>
+    <div id="menu">
+        <h1>Змейка</h1>
+        <button onclick="startGame()">Играть</button>
     </div>
+    
+    <canvas id="gameCanvas"></canvas>
+    <div id="winMessage">Поздравляем! Пароль: <b>chillguys</b></div>
 
     <script>
-        const poems = [
-            [
-                "Прощай, немытая Россия",
-                "Страна рабов, страна господ",
-                "И вы, мундиры голубые",
-                "И ты, им преданный народ",
-                "Быть может, за стеной Кавказа",
-                "Сокроюсь от твоих пашей",
-                "От их всевидящего глаза",
-                "От их всеслышащих ушей"
-            ],
-            [
-                "Белеет парус одинокий",
-                "В тумане моря голубом",
-                "Что ищет он в стране далекой",
-                "Что кинул он в краю родном",
-                "Играют волны — ветер свищет",
-                "И мачта гнется и скрыпит",
-                "Увы он счастия не ищет",
-                "И не от счастия бежит",
-                "Под ним струя светлей лазури",
-                "Над ним луч солнца золотой",
-                "А он, мятежный, просит бури",
-                "Как будто в бурях есть покой"
-            ]
-        ];
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const size = 40; // Размер поля 40x40
+        const tileSize = 10; // Размер одной клетки
+        canvas.width = size * tileSize;
+        canvas.height = size * tileSize;
 
-        let currentPoemIndex = 0;
-        let currentLineIndex = 0;
-        let timer;
-        let countdown;
-        let learnedPoems = JSON.parse(localStorage.getItem("learnedPoems")) || 0;
+        let snake, direction, food, gameInterval;
 
-        document.getElementById('startButton').addEventListener('click', () => {
-            currentPoemIndex = document.getElementById('poemSelect').value;
-            currentLineIndex = 0;
-            document.getElementById('learningSection').classList.remove('hidden');
-            showNextLine();
-        });
-
-        document.getElementById('nextButton').addEventListener('click', () => {
-            const userInput = document.getElementById('userInput').value;
-            const currentLine = poems[currentPoemIndex][currentLineIndex];
-
-            // Удаляем знаки препинания, лишние пробелы и приводим к нижнему регистру
-            const cleanedUserInput = userInput.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
-            const cleanedCurrentLine = currentLine.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
-
-            if (cleanedUserInput === cleanedCurrentLine) {
-                currentLineIndex++;
-
-                // Проверяем, нужно ли выводить четверостишие
-                if (currentLineIndex % 4 === 0 && currentLineIndex < poems[currentPoemIndex].length) {
-                    showQuatrain();
-                } else if (currentLineIndex < poems[currentPoemIndex].length) {
-                    showNextLine();
-                } else {
-                    // Стих выучен
-                    alert('Вы выучили стих!');
-                    document.getElementById('learningSection').classList.add('hidden');
-                    rewardUser();
-                }
-            } else {
-                alert('Неверно, попробуйте еще раз.');
-            }
-            document.getElementById('userInput').value = '';
-            document.getElementById('userInput').classList.add('hidden');
-            document.getElementById('nextButton').classList.add('hidden');
-        });
-
-        function showNextLine() {
-            const currentLine = poems[currentPoemIndex][currentLineIndex];
-            document.getElementById('currentLine').textContent = currentLine;
-            startTimer(20); // 30 секунд
-            timer = setTimeout(() => {
-                document.getElementById('currentLine').textContent = '';
-                document.getElementById('userInput').classList.remove('hidden');
-                document.getElementById('nextButton').classList.remove('hidden');
-            }, 20000); // 30 секунд
+        function startGame() {
+            document.getElementById("menu").style.display = "none";
+            canvas.style.display = "block";
+            snake = [{ x: 20, y: 20 }];
+            direction = "RIGHT";
+            food = spawnFood();
+            document.addEventListener("keydown", changeDirection);
+            setupTouchControls();
+            gameInterval = setInterval(gameLoop, 100);
         }
 
-        function showQuatrain() {
-            const quatrain = poems[currentPoemIndex].slice(currentLineIndex - 4, currentLineIndex).join("\n");
-            document.getElementById('currentLine').textContent = quatrain;
-            startTimer(60); // 1 минута для четверостишия
-
-            timer = setTimeout(() => {
-                document.getElementById('currentLine').textContent = '';
-                const userInput = prompt(`Повторите четверостишие:\n${quatrain}`);
-
-                // Удаляем знаки препинания, лишние пробелы и приводим к нижнему регистру
-                const cleanedUserInput = userInput.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
-                const cleanedQuatrain = quatrain.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
-
-                if (cleanedUserInput === cleanedQuatrain) {
-                    showNextLine();
-                } else {
-                    alert('Неверно, попробуйте еще раз.');
-                    showQuatrain(); // Повторяем запрос
-                }
-            }, 60000); // 1 минута
+        function changeDirection(event) {
+            if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+            else if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+            else if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+            else if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
         }
 
-        function rewardUser() {
-            learnedPoems++;
-            localStorage.setItem("learnedPoems", JSON.stringify(learnedPoems));
+        function setupTouchControls() {
+            let startX, startY;
+            document.addEventListener("touchstart", e => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            });
 
-            // Отправляем запрос на начисление $Krml
-            fetch('https://pesol45.github.io/hamstercriminal/reward', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ reward: 1e12 }), // 1T $Krml
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Вам начислено 1T $Krml за выученный стих! ');
+            document.addEventListener("touchmove", e => {
+                if (!startX || !startY) return;
+                let endX = e.touches[0].clientX;
+                let endY = e.touches[0].clientY;
+                let diffX = endX - startX;
+                let diffY = endY - startY;
+
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 0 && direction !== "LEFT") direction = "RIGHT";
+                    else if (diffX < 0 && direction !== "RIGHT") direction = "LEFT";
                 } else {
-                    alert('пароль: wpa2psk6.');
+                    if (diffY > 0 && direction !== "UP") direction = "DOWN";
+                    else if (diffY < 0 && direction !== "DOWN") direction = "UP";
                 }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert('пароль: wpa2psk6.');
+                startX = startY = null;
             });
         }
 
-        function redirectToPoems() {
-            window.location.href = "https://pesol45.github.io/hamstercriminal/";
+        function spawnFood() {
+            let newFood;
+            do {
+                newFood = { x: Math.floor(Math.random() * size), y: Math.floor(Math.random() * size) };
+            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+            return newFood;
         }
 
-        function startTimer(seconds) {
-            let remainingTime = seconds;
-            countdown = setInterval(() => {
-                remainingTime--;
-                const minutes = Math.floor(remainingTime / 60);
-                const secs = remainingTime % 60;
-                document.getElementById('timer').textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                if (remainingTime <= 0) {
-                    clearInterval(countdown);
-                }
-            }, 1000);
+        function update() {
+            let head = { ...snake[0] };
+
+            if (direction === "UP") head.y -= 1;
+            if (direction === "DOWN") head.y += 1;
+            if (direction === "LEFT") head.x -= 1;
+            if (direction === "RIGHT") head.x += 1;
+
+            // Проход сквозь стены
+            if (head.x < 0) head.x = size - 1;
+            if (head.x >= size) head.x = 0;
+            if (head.y < 0) head.y = size - 1;
+            if (head.y >= size) head.y = 0;
+
+            if (snake.some(s => s.x === head.x && s.y === head.y)) {
+                clearInterval(gameInterval);
+                alert("Игра окончена!");
+                location.reload();
+                return;
+            }
+
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+                food = spawnFood();
+            } else {
+                snake.pop();
+            }
+
+            if (snake.length === size * size) {
+                clearInterval(gameInterval);
+                document.getElementById("winMessage").style.display = "block";
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "lime";
+            snake.forEach(segment => ctx.fillRect(segment.x * tileSize, segment.y * tileSize, tileSize, tileSize));
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
+        }
+
+        function gameLoop() {
+            update();
+            draw();
         }
     </script>
 </body>
