@@ -3,194 +3,425 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Змейка</title>
+    <title>15 разных джойстиков</title>
     <style>
+        /* Общие стили */
         body {
-            text-align: center;
             font-family: Arial, sans-serif;
-            background: #222;
-            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
             overflow: hidden;
         }
-        canvas { background: black; display: none; touch-action: none; }
-        #menu { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        button { font-size: 20px; padding: 10px 20px; margin-top: 20px; cursor: pointer; }
-        #winMessage { display: none; font-size: 24px; margin-top: 10px; color: green; }
 
-        /* Стили для аналогового джойстика */
-        .joystick-container {
-            display: none;
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150px;
-            height: 150px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        h2 {
+            margin-bottom: 20px;
         }
 
+        /* Контейнер для джойстиков */
+        .joystick-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Базовый стиль для джойстика */
         .joystick {
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none; /* Отключаем стандартное поведение касаний */
+        }
+
+        /* Стиль для ручки джойстика */
+        .joystick-handle {
             position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #4CAF50;
             cursor: pointer;
+            touch-action: none;
+        }
+
+        /* Дизайн 1: Звездообразный */
+        .joystick-1 {
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 57%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 57%,
+                2% 35%,
+                39% 35%
+            );
+            background-color: #ff6f61;
+        }
+
+        .joystick-1 .joystick-handle {
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 57%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 57%,
+                2% 35%,
+                39% 35%
+            );
+        }
+
+        /* Дизайн 2: Круглый */
+        .joystick-2 {
+            border-radius: 50%;
+            background-color: #6b5b95;
+        }
+
+        .joystick-2 .joystick-handle {
+            border-radius: 50%;
+        }
+
+        /* Дизайн 3: Квадратный */
+        .joystick-3 {
+            border-radius: 10px;
+            background-color: #007bff;
+        }
+
+        .joystick-3 .joystick-handle {
+            border-radius: 5px;
+        }
+
+        /* Дизайн 4: Треугольный */
+        .joystick-4 {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            background-color: #ff8c42;
+        }
+
+        .joystick-4 .joystick-handle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        /* Дизайн 5: Сердце */
+        .joystick-5 {
+            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
+            background-color: #ff6f61;
+        }
+
+        .joystick-5 .joystick-handle {
+            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
+        }
+
+        /* Дизайн 6: Шестиугольник */
+        .joystick-6 {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background-color: #88b04b;
+        }
+
+        .joystick-6 .joystick-handle {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        /* Дизайн 7: Ромб */
+        .joystick-7 {
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            background-color: #ff6f61;
+        }
+
+        .joystick-7 .joystick-handle {
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+
+        /* Дизайн 8: Круг с отверстием */
+        .joystick-8 {
+            background: radial-gradient(circle, transparent 50%, #6b5b95 50%);
+        }
+
+        .joystick-8 .joystick-handle {
+            border-radius: 50%;
+        }
+
+        /* Дизайн 9: Звезда с градиентом */
+        .joystick-9 {
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 57%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 57%,
+                2% 35%,
+                39% 35%
+            );
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+        }
+
+        .joystick-9 .joystick-handle {
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 57%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 57%,
+                2% 35%,
+                39% 35%
+            );
+        }
+
+        /* Дизайн 10: Круг с тенью */
+        .joystick-10 {
+            border-radius: 50%;
+            background-color: #007bff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .joystick-10 .joystick-handle {
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Дизайн 11: Квадрат с анимацией */
+        .joystick-11 {
+            border-radius: 10px;
+            background-color: #ff8c42;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .joystick-11 .joystick-handle {
+            border-radius: 5px;
+        }
+
+        /* Дизайн 12: Треугольник с градиентом */
+        .joystick-12 {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            background: linear-gradient(135deg, #4CAF50, #81C784);
+        }
+
+        .joystick-12 .joystick-handle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        /* Дизайн 13: Звезда с анимацией вращения */
+        .joystick-13 {
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 57%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 57%,
+                2% 35%,
+                39% 35%
+            );
+            background-color: #ff6f61;
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .joystick-13 .joystick-handle {
+            clip-path: polygon(
+                50% 0%,
+                61% 35%,
+                98% 35%,
+                68% 57%,
+                79% 91%,
+                50% 70%,
+                21% 91%,
+                32% 57%,
+                2% 35%,
+                39% 35%
+            );
+        }
+
+        /* Дизайн 14: Круг с анимацией смены цвета */
+        .joystick-14 {
+            border-radius: 50%;
+            background-color: #ff6f61;
+            animation: colorChange 3s infinite;
+        }
+
+        @keyframes colorChange {
+            0% { background-color: #ff6f61; }
+            50% { background-color: #4CAF50; }
+            100% { background-color: #ff6f61; }
+        }
+
+        .joystick-14 .joystick-handle {
+            border-radius: 50%;
+        }
+
+        /* Дизайн 15: Квадрат с 3D эффектом */
+        .joystick-15 {
+            border-radius: 10px;
+            background-color: #007bff;
+            transform-style: preserve-3d;
+            animation: rotate3d 5s linear infinite;
+        }
+
+        @keyframes rotate3d {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .joystick-15 .joystick-handle {
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="menu">
-        <h1>Змейка</h1>
-        <button onclick="startGame()">Играть</button>
-    </div>
 
-    <canvas id="gameCanvas"></canvas>
-    <div id="winMessage">Поздравляем! Пароль: <b>chillguys</b></div>
+    <h2>15 разных джойстиков</h2>
 
-    <!-- Аналоговый джойстик -->
-    <div class="joystick-container" id="joystickContainer">
-        <div class="joystick" id="joystick"></div>
+    <div class="joystick-container">
+        <!-- Джойстик 1: Звездообразный -->
+        <div class="joystick joystick-1" id="joystick1">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 2: Круглый -->
+        <div class="joystick joystick-2" id="joystick2">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 3: Квадратный -->
+        <div class="joystick joystick-3" id="joystick3">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 4: Треугольный -->
+        <div class="joystick joystick-4" id="joystick4">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 5: Сердце -->
+        <div class="joystick joystick-5" id="joystick5">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 6: Шестиугольник -->
+        <div class="joystick joystick-6" id="joystick6">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 7: Ромб -->
+        <div class="joystick joystick-7" id="joystick7">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 8: Круг с отверстием -->
+        <div class="joystick joystick-8" id="joystick8">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 9: Звезда с градиентом -->
+        <div class="joystick joystick-9" id="joystick9">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 10: Круг с тенью -->
+        <div class="joystick joystick-10" id="joystick10">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 11: Квадрат с анимацией -->
+        <div class="joystick joystick-11" id="joystick11">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 12: Треугольник с градиентом -->
+        <div class="joystick joystick-12" id="joystick12">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 13: Звезда с анимацией вращения -->
+        <div class="joystick joystick-13" id="joystick13">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 14: Круг с анимацией смены цвета -->
+        <div class="joystick joystick-14" id="joystick14">
+            <div class="joystick-handle"></div>
+        </div>
+
+        <!-- Джойстик 15: Квадрат с 3D эффектом -->
+        <div class="joystick joystick-15" id="joystick15">
+            <div class="joystick-handle"></div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const joystickContainer = document.getElementById("joystickContainer");
-        const joystick = document.getElementById("joystick");
-        const size = 40;
-        const tileSize = 10;
-        canvas.width = size * tileSize;
-        canvas.height = size * tileSize;
+        // Функция для создания джойстика
+        function createJoystick(joystickElement) {
+            const handle = joystickElement.querySelector('.joystick-handle');
+            const joystickRect = joystickElement.getBoundingClientRect();
+            const centerX = joystickRect.width / 2;
+            const centerY = joystickRect.height / 2;
+            const maxDistance = joystickRect.width / 2 - handle.offsetWidth / 2;
 
-        let snake, direction, food, gameInterval;
+            let isDragging = false;
 
-        function startGame() {
-            document.getElementById("menu").style.display = "none";
-            canvas.style.display = "block";
-            joystickContainer.style.display = "flex"; // Показать джойстик
-            snake = [{ x: 20, y: 20 }];
-            direction = "RIGHT";
-            food = spawnFood();
-            document.addEventListener("keydown", handleKeydown);
-            gameInterval = setInterval(gameLoop, 100);
+            // Обработка начала касания
+            handle.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                e.preventDefault();
+            });
+
+            // Обработка перемещения
+            joystickElement.addEventListener('touchmove', (e) => {
+                if (isDragging) {
+                    const touch = e.touches[0];
+                    const x = touch.clientX - joystickRect.left - centerX;
+                    const y = touch.clientY - joystickRect.top - centerY;
+                    const distance = Math.sqrt(x * x + y * y);
+
+                    if (distance <= maxDistance) {
+                        handle.style.transform = `translate(${x}px, ${y}px)`;
+                    } else {
+                        const angle = Math.atan2(y, x);
+                        handle.style.transform = `translate(${Math.cos(angle) * maxDistance}px, ${Math.sin(angle) * maxDistance}px)`;
+                    }
+                }
+                e.preventDefault();
+            });
+
+            // Обработка окончания касания
+            joystickElement.addEventListener('touchend', () => {
+                isDragging = false;
+                handle.style.transform = 'translate(0, 0)';
+            });
         }
 
-        function handleKeydown(event) {
-            if (event.key === "ArrowUp") changeDirection("UP");
-            else if (event.key === "ArrowDown") changeDirection("DOWN");
-            else if (event.key === "ArrowLeft") changeDirection("LEFT");
-            else if (event.key === "ArrowRight") changeDirection("RIGHT");
-        }
-
-        function changeDirection(newDirection) {
-            if (newDirection === "UP" && direction !== "DOWN") direction = "UP";
-            else if (newDirection === "DOWN" && direction !== "UP") direction = "DOWN";
-            else if (newDirection === "LEFT" && direction !== "RIGHT") direction = "LEFT";
-            else if (newDirection === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
-        }
-
-        function spawnFood() {
-            let newFood;
-            do {
-                newFood = { x: Math.floor(Math.random() * size), y: Math.floor(Math.random() * size) };
-            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
-            return newFood;
-        }
-
-        function update() {
-            let head = { ...snake[0] };
-
-            if (direction === "UP") head.y -= 1;
-            if (direction === "DOWN") head.y += 1;
-            if (direction === "LEFT") head.x -= 1;
-            if (direction === "RIGHT") head.x += 1;
-
-            if (head.x < 0) head.x = size - 1;
-            if (head.x >= size) head.x = 0;
-            if (head.y < 0) head.y = size - 1;
-            if (head.y >= size) head.y = 0;
-
-            if (snake.some(s => s.x === head.x && s.y === head.y)) {
-                clearInterval(gameInterval);
-                alert("Игра окончена!");
-                location.reload();
-                return;
-            }
-
-            snake.unshift(head);
-            if (head.x === food.x && head.y === food.y) {
-                food = spawnFood();
-            } else {
-                snake.pop();
-            }
-
-            if (snake.length === size * size) {
-                clearInterval(gameInterval);
-                document.getElementById("winMessage").style.display = "block";
-            }
-        }
-
-        function draw() {
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = "lime";
-            snake.forEach(segment => ctx.fillRect(segment.x * tileSize, segment.y * tileSize, tileSize, tileSize));
-
-            ctx.fillStyle = "red";
-            ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
-        }
-
-        function gameLoop() {
-            update();
-            draw();
-        }
-
-        // Аналоговый джойстик
-        const radius = joystickContainer.offsetWidth / 2;
-        const joystickRadius = joystick.offsetWidth / 2;
-        let isDragging = false;
-
-        joystick.addEventListener('mousedown', () => isDragging = true);
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            joystick.style.transform = 'translate(0, 0)';
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            const rect = joystickContainer.getBoundingClientRect();
-            const centerX = rect.left + radius;
-            const centerY = rect.top + radius;
-
-            let x = e.clientX - centerX;
-            let y = e.clientY - centerY;
-            const distance = Math.sqrt(x * x + y * y);
-
-            if (distance > radius - joystickRadius) {
-                const angle = Math.atan2(y, x);
-                x = Math.cos(angle) * (radius - joystickRadius);
-                y = Math.sin(angle) * (radius - joystickRadius);
-            }
-
-            joystick.style.transform = `translate(${x}px, ${y}px)`;
-
-            if (Math.abs(x) > Math.abs(y)) {
-                changeDirection(x > 0 ? "RIGHT" : "LEFT");
-            } else {
-                changeDirection(y > 0 ? "DOWN" : "UP");
-            }
-        });
+        // Инициализация всех джойстиков
+        document.querySelectorAll('.joystick').forEach(createJoystick);
     </script>
 </body>
 </html>
