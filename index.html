@@ -2,426 +2,646 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>15 разных джойстиков</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мобильный Тетрис</title>
     <style>
-        /* Общие стили */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body {
             font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            overflow-x: hidden;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+            padding: 10px;
+            gap: 10px;
+            max-width: 100%;
             overflow: hidden;
         }
-
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        /* Контейнер для джойстиков */
-        .joystick-container {
+        
+        .game-area {
+            flex: 1;
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            padding: 20px;
+            flex-direction: column;
+            min-width: 0;
         }
-
-        /* Базовый стиль для джойстика */
-        .joystick {
-            position: relative;
+        
+        .info-panel {
             width: 120px;
-            height: 120px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: none; /* Отключаем стандартное поведение касаний */
+            flex-direction: column;
+            gap: 10px;
         }
-
-        /* Стиль для ручки джойстика */
-        .joystick-handle {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #4CAF50;
-            cursor: pointer;
+        
+        .panel-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #4cc9f0;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        #tetris {
+            width: 100%;
+            aspect-ratio: 10/20;
+            max-height: 80vh;
+            border: 3px solid #4cc9f0;
+            background-color: rgba(0, 0, 0, 0.7);
             touch-action: none;
         }
-
-        /* Дизайн 1: Звездообразный */
-        .joystick-1 {
-            clip-path: polygon(
-                50% 0%,
-                61% 35%,
-                98% 35%,
-                68% 57%,
-                79% 91%,
-                50% 70%,
-                21% 91%,
-                32% 57%,
-                2% 35%,
-                39% 35%
-            );
-            background-color: #ff6f61;
+        
+        .next-piece-container {
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-
-        .joystick-1 .joystick-handle {
-            clip-path: polygon(
-                50% 0%,
-                61% 35%,
-                98% 35%,
-                68% 57%,
-                79% 91%,
-                50% 70%,
-                21% 91%,
-                32% 57%,
-                2% 35%,
-                39% 35%
-            );
+        
+        #nextCanvas {
+            background: transparent;
         }
-
-        /* Дизайн 2: Круглый */
-        .joystick-2 {
-            border-radius: 50%;
-            background-color: #6b5b95;
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f72585;
+            margin: 5px 0;
         }
-
-        .joystick-2 .joystick-handle {
-            border-radius: 50%;
+        
+        .level-value {
+            font-size: 1.2rem;
+            color: #4cc9f0;
         }
-
-        /* Дизайн 3: Квадратный */
-        .joystick-3 {
+        
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .game-over-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 20px;
             border-radius: 10px;
-            background-color: #007bff;
+            border: 3px solid #f72585;
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
         }
-
-        .joystick-3 .joystick-handle {
+        
+        .password {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #4cc9f0;
             border-radius: 5px;
+            animation: glow 1.5s infinite alternate;
         }
-
-        /* Дизайн 4: Треугольный */
-        .joystick-4 {
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            background-color: #ff8c42;
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #fff, 0 0 10px #fff; }
+            to { text-shadow: 0 0 10px #fff, 0 0 20px #4cc9f0; }
         }
-
-        .joystick-4 .joystick-handle {
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-        }
-
-        /* Дизайн 5: Сердце */
-        .joystick-5 {
-            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
-            background-color: #ff6f61;
-        }
-
-        .joystick-5 .joystick-handle {
-            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
-        }
-
-        /* Дизайн 6: Шестиугольник */
-        .joystick-6 {
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            background-color: #88b04b;
-        }
-
-        .joystick-6 .joystick-handle {
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        }
-
-        /* Дизайн 7: Ромб */
-        .joystick-7 {
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            background-color: #ff6f61;
-        }
-
-        .joystick-7 .joystick-handle {
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-        }
-
-        /* Дизайн 8: Круг с отверстием */
-        .joystick-8 {
-            background: radial-gradient(circle, transparent 50%, #6b5b95 50%);
-        }
-
-        .joystick-8 .joystick-handle {
-            border-radius: 50%;
-        }
-
-        /* Дизайн 9: Звезда с градиентом */
-        .joystick-9 {
-            clip-path: polygon(
-                50% 0%,
-                61% 35%,
-                98% 35%,
-                68% 57%,
-                79% 91%,
-                50% 70%,
-                21% 91%,
-                32% 57%,
-                2% 35%,
-                39% 35%
-            );
-            background: linear-gradient(135deg, #ff7e5f, #feb47b);
-        }
-
-        .joystick-9 .joystick-handle {
-            clip-path: polygon(
-                50% 0%,
-                61% 35%,
-                98% 35%,
-                68% 57%,
-                79% 91%,
-                50% 70%,
-                21% 91%,
-                32% 57%,
-                2% 35%,
-                39% 35%
-            );
-        }
-
-        /* Дизайн 10: Круг с тенью */
-        .joystick-10 {
-            border-radius: 50%;
-            background-color: #007bff;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .joystick-10 .joystick-handle {
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Дизайн 11: Квадрат с анимацией */
-        .joystick-11 {
-            border-radius: 10px;
-            background-color: #ff8c42;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .joystick-11 .joystick-handle {
+        
+        button {
+            background: #f72585;
+            color: white;
+            border: none;
+            padding: 10px 15px;
             border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
         }
-
-        /* Дизайн 12: Треугольник с градиентом */
-        .joystick-12 {
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            background: linear-gradient(135deg, #4CAF50, #81C784);
+        
+        .controls-hint {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
         }
-
-        .joystick-12 .joystick-handle {
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-        }
-
-        /* Дизайн 13: Звезда с анимацией вращения */
-        .joystick-13 {
-            clip-path: polygon(
-                50% 0%,
-                61% 35%,
-                98% 35%,
-                68% 57%,
-                79% 91%,
-                50% 70%,
-                21% 91%,
-                32% 57%,
-                2% 35%,
-                39% 35%
-            );
-            background-color: #ff6f61;
-            animation: rotate 4s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .joystick-13 .joystick-handle {
-            clip-path: polygon(
-                50% 0%,
-                61% 35%,
-                98% 35%,
-                68% 57%,
-                79% 91%,
-                50% 70%,
-                21% 91%,
-                32% 57%,
-                2% 35%,
-                39% 35%
-            );
-        }
-
-        /* Дизайн 14: Круг с анимацией смены цвета */
-        .joystick-14 {
-            border-radius: 50%;
-            background-color: #ff6f61;
-            animation: colorChange 3s infinite;
-        }
-
-        @keyframes colorChange {
-            0% { background-color: #ff6f61; }
-            50% { background-color: #4CAF50; }
-            100% { background-color: #ff6f61; }
-        }
-
-        .joystick-14 .joystick-handle {
-            border-radius: 50%;
-        }
-
-        /* Дизайн 15: Квадрат с 3D эффектом */
-        .joystick-15 {
-            border-radius: 10px;
-            background-color: #007bff;
-            transform-style: preserve-3d;
-            animation: rotate3d 5s linear infinite;
-        }
-
-        @keyframes rotate3d {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(360deg); }
-        }
-
-        .joystick-15 .joystick-handle {
-            border-radius: 5px;
+        
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .info-panel {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            
+            .panel-block {
+                width: 48%;
+                min-width: 0;
+            }
+            
+            #tetris {
+                max-height: 60vh;
+            }
         }
     </style>
 </head>
 <body>
-
-    <h2>15 разных джойстиков</h2>
-
-    <div class="joystick-container">
-        <!-- Джойстик 1: Звездообразный -->
-        <div class="joystick joystick-1" id="joystick1">
-            <div class="joystick-handle"></div>
+    <div class="container">
+        <div class="game-area">
+            <canvas id="tetris" width="300" height="600"></canvas>
+            <div class="controls-hint">
+                Свайп влево/вправо - движение, вверх - поворот, вниз - ускорить, тап - сброс
+            </div>
         </div>
-
-        <!-- Джойстик 2: Круглый -->
-        <div class="joystick joystick-2" id="joystick2">
-            <div class="joystick-handle"></div>
+        
+        <div class="info-panel">
+            <div class="panel-block">
+                <div>Следующая:</div>
+                <div class="next-piece-container">
+                    <canvas id="nextCanvas" width="80" height="80"></canvas>
+                </div>
+            </div>
+            
+            <div class="panel-block">
+                <div>Очки</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            
+            <div class="panel-block">
+                <div>Уровень</div>
+                <div class="level-value" id="level">1</div>
+            </div>
+            
+            <div class="panel-block">
+                <div>Линии</div>
+                <div class="level-value" id="lines">0</div>
+            </div>
+            
+            <div class="panel-block">
+                <button id="startButton">Старт</button>
+                <button id="pauseButton">Пауза</button>
+            </div>
         </div>
-
-        <!-- Джойстик 3: Квадратный -->
-        <div class="joystick joystick-3" id="joystick3">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 4: Треугольный -->
-        <div class="joystick joystick-4" id="joystick4">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 5: Сердце -->
-        <div class="joystick joystick-5" id="joystick5">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 6: Шестиугольник -->
-        <div class="joystick joystick-6" id="joystick6">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 7: Ромб -->
-        <div class="joystick joystick-7" id="joystick7">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 8: Круг с отверстием -->
-        <div class="joystick joystick-8" id="joystick8">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 9: Звезда с градиентом -->
-        <div class="joystick joystick-9" id="joystick9">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 10: Круг с тенью -->
-        <div class="joystick joystick-10" id="joystick10">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 11: Квадрат с анимацией -->
-        <div class="joystick joystick-11" id="joystick11">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 12: Треугольник с градиентом -->
-        <div class="joystick joystick-12" id="joystick12">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 13: Звезда с анимацией вращения -->
-        <div class="joystick joystick-13" id="joystick13">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 14: Круг с анимацией смены цвета -->
-        <div class="joystick joystick-14" id="joystick14">
-            <div class="joystick-handle"></div>
-        </div>
-
-        <!-- Джойстик 15: Квадрат с 3D эффектом -->
-        <div class="joystick joystick-15" id="joystick15">
-            <div class="joystick-handle"></div>
+    </div>
+    
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>ПОБЕДА!</h2>
+            <div>Ваш счет: <span id="finalScore">0</span></div>
+            <div class="password">bebra229</div>
+            <button id="restartButton">Играть снова</button>
         </div>
     </div>
 
     <script>
-        // Функция для создания джойстика
-        function createJoystick(joystickElement) {
-            const handle = joystickElement.querySelector('.joystick-handle');
-            const joystickRect = joystickElement.getBoundingClientRect();
-            const centerX = joystickRect.width / 2;
-            const centerY = joystickRect.height / 2;
-            const maxDistance = joystickRect.width / 2 - handle.offsetWidth / 2;
-
-            let isDragging = false;
-
-            // Обработка начала касания
-            handle.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                e.preventDefault();
-            });
-
-            // Обработка перемещения
-            joystickElement.addEventListener('touchmove', (e) => {
-                if (isDragging) {
-                    const touch = e.touches[0];
-                    const x = touch.clientX - joystickRect.left - centerX;
-                    const y = touch.clientY - joystickRect.top - centerY;
-                    const distance = Math.sqrt(x * x + y * y);
-
-                    if (distance <= maxDistance) {
-                        handle.style.transform = `translate(${x}px, ${y}px)`;
-                    } else {
-                        const angle = Math.atan2(y, x);
-                        handle.style.transform = `translate(${Math.cos(angle) * maxDistance}px, ${Math.sin(angle) * maxDistance}px)`;
+        // Игровые константы
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 30;
+        const WIN_SCORE = 20000;
+        
+        // Получаем элементы canvas
+        const canvas = document.getElementById('tetris');
+        const ctx = canvas.getContext('2d');
+        const nextCanvas = document.getElementById('nextCanvas');
+        const nextCtx = nextCanvas.getContext('2d');
+        
+        // Масштабирование canvas
+        ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
+        nextCtx.scale(BLOCK_SIZE, BLOCK_SIZE);
+        
+        // Игровые переменные
+        let score = 0;
+        let level = 1;
+        let lines = 0;
+        let gameOver = true;
+        let paused = false;
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+        
+        // Для сенсорного управления
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const SWIPE_THRESHOLD = 30;
+        
+        // Игровое поле
+        const grid = createGrid();
+        
+        // Фигуры Тетриса
+        const SHAPES = [
+            { shape: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], color: '#4cc9f0' }, // I
+            { shape: [[1, 0, 0], [1, 1, 1], [0, 0, 0]], color: '#4361ee' }, // J
+            { shape: [[0, 0, 1], [1, 1, 1], [0, 0, 0]], color: '#f72585' }, // L
+            { shape: [[1, 1], [1, 1]], color: '#ffbe0b' }, // O
+            { shape: [[0, 1, 1], [1, 1, 0], [0, 0, 0]], color: '#06d6a0' }, // S
+            { shape: [[0, 1, 0], [1, 1, 1], [0, 0, 0]], color: '#7209b7' }, // T
+            { shape: [[1, 1, 0], [0, 1, 1], [0, 0, 0]], color: '#ff006e' }  // Z
+        ];
+        
+        // Текущая и следующая фигуры
+        let player = null;
+        let nextPiece = null;
+        
+        // Создание игрового поля
+        function createGrid() {
+            return Array.from(Array(ROWS), () => Array(COLS).fill(0));
+        }
+        
+        // Создание фигуры
+        function createPiece() {
+            const piece = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            return {
+                shape: piece.shape,
+                color: piece.color,
+                pos: {x: Math.floor(COLS / 2) - Math.floor(piece.shape[0].length / 2), y: 0}
+            };
+        }
+        
+        // Рисование фигуры
+        function drawPiece(piece, context) {
+            piece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        context.fillStyle = piece.color;
+                        context.fillRect(piece.pos.x + x, piece.pos.y + y, 1, 1);
+                        
+                        // Добавляем градиент для красоты
+                        const gradient = context.createLinearGradient(
+                            piece.pos.x + x, piece.pos.y + y, 
+                            piece.pos.x + x + 1, piece.pos.y + y + 1
+                        );
+                        gradient.addColorStop(0, piece.color);
+                        gradient.addColorStop(1, 'white');
+                        
+                        context.strokeStyle = gradient;
+                        context.lineWidth = 0.1;
+                        context.strokeRect(piece.pos.x + x, piece.pos.y + y, 1, 1);
                     }
-                }
-                e.preventDefault();
-            });
-
-            // Обработка окончания касания
-            joystickElement.addEventListener('touchend', () => {
-                isDragging = false;
-                handle.style.transform = 'translate(0, 0)';
+                });
             });
         }
-
-        // Инициализация всех джойстиков
-        document.querySelectorAll('.joystick').forEach(createJoystick);
+        
+        // Рисование сетки
+        function drawGrid() {
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    if (grid[y][x]) {
+                        ctx.fillStyle = grid[y][x];
+                        ctx.fillRect(x, y, 1, 1);
+                        
+                        // Добавляем градиент для заполненных блоков
+                        const gradient = ctx.createLinearGradient(x, y, x + 1, y + 1);
+                        gradient.addColorStop(0, grid[y][x]);
+                        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.7)');
+                        
+                        ctx.strokeStyle = gradient;
+                        ctx.lineWidth = 0.1;
+                        ctx.strokeRect(x, y, 1, 1);
+                    }
+                }
+            }
+        }
+        
+        // Проверка столкновений
+        function collide() {
+            const [shape, pos] = [player.shape, player.pos];
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0 &&
+                        (grid[y + pos.y] === undefined ||
+                         grid[y + pos.y][x + pos.x] === undefined ||
+                         grid[y + pos.y][x + pos.x] !== 0)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // Поворот фигуры
+        function rotate() {
+            if (player === null) return;
+            
+            const originalShape = player.shape;
+            const rows = player.shape.length;
+            const cols = player.shape[0].length;
+            
+            // Транспонирование матрицы
+            let rotated = Array(cols).fill().map(() => Array(rows).fill(0));
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    rotated[x][rows - 1 - y] = player.shape[y][x];
+                }
+            }
+            
+            player.shape = rotated;
+            
+            // Если после поворота есть столкновение, отменяем поворот
+            if (collide()) {
+                player.shape = originalShape;
+            }
+        }
+        
+        // Слияние фигуры с сеткой
+        function merge() {
+            player.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        grid[y + player.pos.y][x + player.pos.x] = player.color;
+                    }
+                });
+            });
+        }
+        
+        // Очистка заполненных линий
+        function clearLines() {
+            let linesCleared = 0;
+            
+            outer: for (let y = ROWS - 1; y >= 0; y--) {
+                for (let x = 0; x < COLS; x++) {
+                    if (grid[y][x] === 0) {
+                        continue outer;
+                    }
+                }
+                
+                // Удаляем заполненную строку
+                const row = grid.splice(y, 1)[0].fill(0);
+                grid.unshift(row);
+                y++; // Проверяем ту же строку снова
+                linesCleared++;
+            }
+            
+            if (linesCleared > 0) {
+                // Обновляем счет
+                updateScore(linesCleared);
+            }
+        }
+        
+        // Обновление счета
+        function updateScore(linesCleared) {
+            const points = [0, 100, 300, 500, 800][linesCleared] * level;
+            score += points;
+            lines += linesCleared;
+            
+            // Обновляем уровень каждые 10 линий
+            level = Math.floor(lines / 10) + 1;
+            
+            // Ускоряем игру с увеличением уровня
+            dropInterval = Math.max(100, 1000 - (level - 1) * 100);
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('lines').textContent = lines;
+            
+            // Проверяем победу
+            if (score >= WIN_SCORE) {
+                winGame();
+            }
+        }
+        
+        // Сброс фигуры
+        function playerDrop() {
+            player.pos.y++;
+            if (collide()) {
+                player.pos.y--;
+                merge();
+                clearLines();
+                if (player.pos.y === 0) {
+                    // Игра окончена
+                    endGame();
+                    return;
+                }
+                player = nextPiece;
+                nextPiece = createPiece();
+                drawNextPiece();
+            }
+            dropCounter = 0;
+        }
+        
+        // Движение фигуры
+        function playerMove(dir) {
+            if (paused || gameOver) return;
+            
+            player.pos.x += dir;
+            if (collide()) {
+                player.pos.x -= dir;
+            }
+        }
+        
+        // Ускоренное падение
+        function playerHardDrop() {
+            if (paused || gameOver) return;
+            
+            while (!collide()) {
+                player.pos.y++;
+            }
+            player.pos.y--;
+            playerDrop();
+        }
+        
+        // Обновление игры
+        function update(time = 0) {
+            if (paused || gameOver) return;
+            
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                playerDrop();
+            }
+            
+            draw();
+            requestAnimationFrame(update);
+        }
+        
+        // Отрисовка игры
+        function draw() {
+            ctx.clearRect(0, 0, COLS, ROWS);
+            drawGrid();
+            drawPiece(player, ctx);
+        }
+        
+        // Отрисовка следующей фигуры
+        function drawNextPiece() {
+            nextCtx.clearRect(0, 0, nextCanvas.width / BLOCK_SIZE, nextCanvas.height / BLOCK_SIZE);
+            
+            // Центрируем следующую фигуру
+            const offsetX = (nextCanvas.width / BLOCK_SIZE - nextPiece.shape[0].length) / 2;
+            const offsetY = (nextCanvas.height / BLOCK_SIZE - nextPiece.shape.length) / 2;
+            
+            nextPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        nextCtx.fillStyle = nextPiece.color;
+                        nextCtx.fillRect(offsetX + x, offsetY + y, 1, 1);
+                        
+                        // Добавляем градиент для красоты
+                        const gradient = nextCtx.createLinearGradient(
+                            offsetX + x, offsetY + y, 
+                            offsetX + x + 1, offsetY + y + 1
+                        );
+                        gradient.addColorStop(0, nextPiece.color);
+                        gradient.addColorStop(1, 'white');
+                        
+                        nextCtx.strokeStyle = gradient;
+                        nextCtx.lineWidth = 0.1;
+                        nextCtx.strokeRect(offsetX + x, offsetY + y, 1, 1);
+                    }
+                });
+            });
+        }
+        
+        // Начало игры
+        function startGame() {
+            if (!gameOver && !paused) return;
+            
+            // Сброс игрового поля
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    grid[y][x] = 0;
+                }
+            }
+            
+            // Сброс счета
+            score = 0;
+            level = 1;
+            lines = 0;
+            dropInterval = 1000;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('lines').textContent = lines;
+            
+            // Создание фигур
+            player = createPiece();
+            nextPiece = createPiece();
+            drawNextPiece();
+            
+            gameOver = false;
+            paused = false;
+            document.getElementById('gameOver').style.display = 'none';
+            
+            lastTime = 0;
+            dropCounter = 0;
+            update();
+        }
+        
+        // Пауза игры
+        function togglePause() {
+            if (gameOver) return;
+            
+            paused = !paused;
+            document.getElementById('pauseButton').textContent = paused ? 'Продолжить' : 'Пауза';
+            
+            if (!paused) {
+                lastTime = 0;
+                update();
+            }
+        }
+        
+        // Конец игры
+        function endGame() {
+            gameOver = true;
+            document.getElementById('gameOver').style.display = 'flex';
+            document.getElementById('finalScore').textContent = score;
+            document.querySelector('.game-over h2').textContent = 'ИГРА ОКОНЧЕНА';
+            document.querySelector('.password').style.display = 'none';
+        }
+        
+        // Победа в игре
+        function winGame() {
+            gameOver = true;
+            document.getElementById('gameOver').style.display = 'flex';
+            document.getElementById('finalScore').textContent = score;
+            document.querySelector('.game-over h2').textContent = 'ПОБЕДА!';
+            document.querySelector('.password').style.display = 'block';
+        }
+        
+        // Обработка жестов
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }
+        
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            const touchEndX = touch.clientX;
+            const touchEndY = touch.clientY;
+            
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            
+            // Определяем направление свайпа
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Горизонтальный свайп
+                if (Math.abs(dx) > SWIPE_THRESHOLD) {
+                    if (dx > 0) {
+                        playerMove(1); // Вправо
+                    } else {
+                        playerMove(-1); // Влево
+                    }
+                }
+            } else {
+                // Вертикальный свайп
+                if (Math.abs(dy) > SWIPE_THRESHOLD) {
+                    if (dy > 0) {
+                        playerDrop(); // Вниз
+                    } else {
+                        rotate(); // Вверх
+                    }
+                } else {
+                    // Тап (короткое касание)
+                    playerHardDrop();
+                }
+            }
+        }
+        
+        // Инициализация игры
+        function init() {
+            // Обработчики событий
+            canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
+            canvas.addEventListener('touchend', handleTouchEnd, {passive: false});
+            
+            document.getElementById('startButton').addEventListener('click', startGame);
+            document.getElementById('pauseButton').addEventListener('click', togglePause);
+            document.getElementById('restartButton').addEventListener('click', startGame);
+            
+            // Первоначальная отрисовка
+            draw();
+        }
+        
+        // Запуск игры
+        init();
     </script>
 </body>
 </html>
