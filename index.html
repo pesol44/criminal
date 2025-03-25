@@ -42,13 +42,13 @@
             align-items: center;
             gap: 5px;
         }
-        
-        #tetris {
+       #tetris {
             border: 2px solid #4cc9f0;
             background-color: rgba(0, 0, 0, 0.7);
             box-shadow: 0 0 15px rgba(76, 201, 240, 0.5);
-            width: 100%;
-            height: 300px;
+            width: 300px;
+            height: 600px;
+            image-rendering: pixelated;
         }
         
         .right-panel {
@@ -70,12 +70,12 @@
             background-color: rgba(0, 0, 0, 0.3);
             border: 2px dashed #4cc9f0;
             border-radius: 8px;
-        }
-        
-        #nextCanvas {
+        } 
+      #nextCanvas {
             background-color: transparent;
             width: 80px;
             height: 80px;
+            image-rendering: pixelated;
         }
         
         .score-display {
@@ -209,11 +209,39 @@
                 font-size: 11px;
                 padding: 4px 6px;
             }
+          .boost-panel {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+        .boost-btn {
+            background-color: rgba(247, 37, 133, 0.3);
+            border: 2px solid #f72585;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .boost-btn:hover {
+            background-color: rgba(247, 37, 133, 0.7);
+        }
+        .boost-btn.active {
+            background-color: #f72585;
+            box-shadow: 0 0 10px #f72585;
+        }
+        .boost-info {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px;
+            color: #4cc9f0;
         }
     </style>
 </head>
 <body>
-    <h1>ТЕТРИС - Набери 20 000 очков!</h1>
+     <h1>ТЕТРИС - Набери 10 000 очков!</h1>
     
     <div class="main-container">
         <div class="game-area">
@@ -226,6 +254,14 @@
                 <div class="mobile-btn down-btn" id="mobileDown">↓</div>
                 <div class="mobile-btn right-btn" id="mobileRight">→</div>
             </div>
+            
+            <div class="boost-panel">
+                <div class="boost-btn" id="boost2x">2X</div>
+                <div class="boost-btn" id="boost4x">4X</div>
+                <div class="boost-btn" id="boost6x">6X</div>
+                <div class="boost-btn" id="boost10x">10X</div>
+            </div>
+            <div class="boost-info" id="boostInfo">Текущий множитель: 1X</div>
         </div>
         
         <div class="right-panel">
@@ -249,20 +285,26 @@
         <div class="game-over-content">
             <h2>ПОБЕДА!</h2>
             <div class="final-score">Счет: <span id="finalScore">0</span></div>
-            <div>Вы набрали 20 000 очков!</div>
-            <div>Пароль:</div>
+            <div>Вы не набрали 10 000 очков!</div>
+            <div>Пароль: скрыт</div>
             <div class="password">bebra229</div>
             <button id="restartButton">Играть снова</button>
         </div>
     </div>
     
     <script>
-        // Игровые константы
+          // Игровые константы
         const COLS = 10;
         const ROWS = 20;
         const BLOCK_SIZE = 30;
-        const WIN_SCORE = 20000;
+        const WIN_SCORE = 10000; // Изменено на 10 000
         const ADMIN_PASSWORD = "пихта";
+        
+        // Переменные для бустов
+        let currentMultiplier = 1;
+        let boostActive = false;
+        let boostEndTime = 0;
+        const BOOST_DURATION = 10000; // 10 секунд
         
         // Получаем элементы canvas
         const canvas = document.getElementById('tetris');
@@ -340,25 +382,81 @@
                 });
             });
         }
-        
-        // Рисование сетки
         function drawGrid() {
+            // Очищаем canvas
+            ctx.clearRect(0, 0, COLS, ROWS);
+            
+            // Рисуем сетку
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 0.05;
+            
+            // Вертикальные линии
+            for (let x = 0; x <= COLS; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, ROWS);
+                ctx.stroke();
+            }
+            
+            // Горизонтальные линии
+            for (let y = 0; y <= ROWS; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(COLS, y);
+                ctx.stroke();
+            }
+            
+            // Заполненные клетки
             for (let y = 0; y < ROWS; y++) {
                 for (let x = 0; x < COLS; x++) {
                     if (grid[y][x]) {
+                        // Основной цвет
                         ctx.fillStyle = grid[y][x];
                         ctx.fillRect(x, y, 1, 1);
                         
+                        // Градиент для эффекта объема
                         const gradient = ctx.createLinearGradient(x, y, x + 1, y + 1);
                         gradient.addColorStop(0, grid[y][x]);
                         gradient.addColorStop(1, 'rgba(255, 255, 255, 0.7)');
                         
+                        // Обводка
                         ctx.strokeStyle = gradient;
                         ctx.lineWidth = 0.1;
                         ctx.strokeRect(x, y, 1, 1);
                     }
                 }
             }
+        }
+        
+        // Модифицированная функция отрисовки фигуры
+        function drawPiece(piece, context) {
+            piece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        // Основной цвет
+                        context.fillStyle = piece.color;
+                        context.fillRect(piece.pos.x + x, piece.pos.y + y, 1, 1);
+                        
+                        // Градиент для эффекта объема
+                        const gradient = context.createLinearGradient(
+                            piece.pos.x + x, piece.pos.y + y, 
+                            piece.pos.x + x + 1, piece.pos.y + y + 1
+                        );
+                        gradient.addColorStop(0, piece.color);
+                        gradient.addColorStop(1, 'white');
+                        
+                        // Обводка
+                        context.strokeStyle = gradient;
+                        context.lineWidth = 0.1;
+                        context.strokeRect(piece.pos.x + x, piece.pos.y + y, 1, 1);
+                        
+                        // Четкие границы клеток
+                        context.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                        context.lineWidth = 0.05;
+                        context.strokeRect(piece.pos.x + x, piece.pos.y + y, 1, 1);
+                    }
+                });
+            });
         }
         
         // Проверка столкновений
@@ -461,10 +559,10 @@
             
             animate();
         }
-        
-        // Обновление счета
-        function updateScore(linesCleared) {
-            const points = [0, 100, 300, 500, 800][linesCleared] * level;
+                function updateScore(linesCleared) {
+            let basePoints = [0, 100, 300, 500, 800][linesCleared] * level;
+            let points = basePoints * currentMultiplier;
+            
             score += points;
             lines += linesCleared;
             
@@ -475,6 +573,42 @@
             
             if (score >= WIN_SCORE) {
                 winGame();
+            }
+        }
+        
+        // Активация буста
+        function activateBoost(multiplier) {
+            currentMultiplier = multiplier;
+            boostActive = true;
+            boostEndTime = Date.now() + BOOST_DURATION;
+            
+            // Обновляем интерфейс
+            document.querySelectorAll('.boost-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`boost${multiplier}x`).classList.add('active');
+            document.getElementById('boostInfo').textContent = `Текущий множитель: ${multiplier}X (${BOOST_DURATION/1000} сек)`;
+            
+            // Запускаем таймер для отключения буста
+            setTimeout(checkBoostStatus, 100);
+        }
+        
+        // Проверка статуса буста
+        function checkBoostStatus() {
+            if (!boostActive) return;
+            
+            const remaining = Math.ceil((boostEndTime - Date.now()) / 1000);
+            
+            if (remaining <= 0) {
+                currentMultiplier = 1;
+                boostActive = false;
+                document.querySelectorAll('.boost-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.getElementById('boostInfo').textContent = 'Текущий множитель: 1X';
+            } else {
+                document.getElementById('boostInfo').textContent = `Текущий множитель: ${currentMultiplier}X (${remaining} сек)`;
+                setTimeout(checkBoostStatus, 100);
             }
         }
         
@@ -706,6 +840,31 @@
         document.getElementById('mobileDrop').addEventListener('touchstart', (e) => {
             e.preventDefault();
             playerHardDrop();
+        });
+       document.getElementById('boost2x').addEventListener('click', () => activateBoost(2));
+        document.getElementById('boost4x').addEventListener('click', () => activateBoost(4));
+        document.getElementById('boost6x').addEventListener('click', () => activateBoost(6));
+        document.getElementById('boost10x').addEventListener('click', () => activateBoost(10));
+        
+        // Мобильные обработчики для бустов
+        document.getElementById('boost2x').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            activateBoost(2);
+        });
+        
+        document.getElementById('boost4x').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            activateBoost(4);
+        });
+        
+        document.getElementById('boost6x').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            activateBoost(6);
+        });
+        
+        document.getElementById('boost10x').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            activateBoost(10);
         });
         
         document.getElementById('mobileLeft').addEventListener('click', () => playerMove(-1));
